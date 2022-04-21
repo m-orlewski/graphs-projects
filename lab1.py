@@ -70,5 +70,12 @@ class App:
     def convert_to_adj_list(self):
         pass
 
+    def generate_n_l_graph(self):
+        pass
+
+    def generate_n_p_graph(self):
+        pass
+
+
 if __name__ == '__main__':
     app = App()
