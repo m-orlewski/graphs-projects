@@ -19,14 +19,14 @@ class AdjList():
             self.representation = data
     
     def convert_to_adj_matrix(self):
-        n = 0
+        n = 0 # ilość węzłów grafu 
         for value in self.representation.values():
             if max(value) > n:
                 n = max(value)
 
         data = [[0 for _ in range(n)] for _ in range(n)]
 
-        for key, value in self.representation.items():
+        for key, value in self.representation.items(): # key - węzeł, value - lista sąsiadów
             for elem in value:
                 data[key - 1][elem - 1] = 1
 
@@ -34,9 +34,9 @@ class AdjList():
         
 
     def convert_to_inc_matrix(self):
-        n = 0
-        edges = 0
-        for value in self.representation.values():
+        n = 0 # ilość węzłów grafu
+        edges = 0 # ilość krawędzi grafu
+        for value in self.representation.values(): # wyliczenie ilości węzłów i krawędzi
             edges += len(value)
             if max(value) > n:
                 n = max(value)
@@ -45,12 +45,12 @@ class AdjList():
         data = [[0 for _ in range(edges)] for _ in range(n)]
 
         edge = 0
-        for key, value in self.representation.items():
+        for key, value in self.representation.items(): # key - węzeł, value - lista sąsiadów
             for elem in value:
-                if key < elem:
+                if key < elem: # każdą krawędź dodajemy tylko raz
                     data[key - 1][edge] = 1
                     data[elem - 1][edge] = 1
-                    edge += 1
+                    edge += 1 # przechodzimy do następnej krawędzi (kolumny macierzy)
 
         return inc_matrix.IncMatrix(data=data)
 

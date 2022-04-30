@@ -19,24 +19,21 @@ class AdjMatrix():
         return self
 
     def convert_to_inc_matrix(self):
-        edges = 0
+        edges = 0 # ilość krawędzi grafu
         for row in range(len(self.representation)):
             edges += sum(self.representation[row])
         edges //= 2
-        length = len(self.representation) # liczba wierzchołków
-        edge_num = 0
-        row_num = 0
-        data = [[0 for _ in range(int(edges))] for _ in range(length)]
 
-        for row in self.representation:
-            col_num = 0
-            for col in row:
-                if col == 1 and col_num > row_num:
-                    data[row_num][edge_num] = 1
-                    data[col_num][edge_num] = 1
-                    edge_num += 1
-                col_num += 1
-            row_num += 1
+        length = len(self.representation) # liczba wierzchołków grafu
+
+        data = [[0 for _ in range(int(edges))] for _ in range(length)]
+        edge = 0
+        for i in range(length):
+            for j in range(length):
+                if self.representation[i][j] == 1 and i < j: # każdą krawędź dodajemy tylko raz
+                    data[i][edge] = 1
+                    data[j][edge] = 1
+                    edge += 1 # przechodzimy do następnej krawędzi (kolumny macierzy)
 
         return inc_matrix.IncMatrix(data=data)
 
@@ -44,9 +41,9 @@ class AdjMatrix():
         data = {}
 
         for row in range(len(self.representation)):
-            data[row+1] = []
+            data[row+1] = [] # dodajemy węzeł (numer wiersza) i pustą listę sąsiadów
             for col in range(len(self.representation[0])):
                 if self.representation[row][col] == 1:
-                    data[row+1].append(col+1)
+                    data[row+1].append(col+1) # dodajemy węzeł(numer kolumny) do listy sąsiadów
 
         return adj_list.AdjList(data=data)

@@ -15,20 +15,19 @@ class IncMatrix():
             self.representation = data
 
     def convert_to_adj_matrix(self):
-        matrix_size = len(self.representation)
-        data = [[0 for i in range(matrix_size)] for j in range(matrix_size)]
+        n = len(self.representation) # ilość węzłów grafu
+        data = [[0 for _ in range(n)] for _ in range(n)]
 
-        for col in range(len(self.representation[0])):
-            count = 0
-            indexes = []
-            for row in range(matrix_size):
-                if self.representation[row][col] == 1:
-                    indexes.append(row)
-                    count += 1
-                if count == 2:
-                    break
-            data[indexes[0]][indexes[1]] = 1
-            data[indexes[1]][indexes[0]] = 1
+        pair = []
+        for i in range(len(self.representation[0])):
+            for j in range(n):
+                if self.representation[j][i] == 1:
+                    pair.append(j) # zapisujemy wierzchołki krawędzi
+                    if len(pair) == 2:
+                        break
+            data[pair[0]][pair[1]] = 1 # wpisujemy wierzchołki krawędzi jako sąsiadów w macierzy sąsiedztwa
+            data[pair[1]][pair[0]] = 1
+            pair = []
 
         return adj_matrix.AdjMatrix(data=data)
 
@@ -41,11 +40,11 @@ class IncMatrix():
         n = len(self.representation)
 
         for i in range(len(self.representation)):
-            data[key] = []
+            data[i+1] = [] # wpisujemy węzeł i+1 i pustą listę jego sąsiadów
             for j in range(len(self.representation[i])):
-                if self.representation[i][j] == 1:
-                    for k in range(n):
-                        if self.representation[k][j] == 1 and k+1 != key:
+                if self.representation[i][j] == 1: # węzeł i+1 jest wierzchołkiem j-tej krawędzi
+                    for k in range(n): # szukamy drugiego wierzchołka j-tej krawędzi
+                        if self.representation[k][j] == 1 and k+1 != i+1: # węzeł k+1 jest drugim wierzchołkiem j-tej krawędzi
                             data[key].append(k+1)
                             break
             key += 1
