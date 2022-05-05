@@ -1,15 +1,10 @@
-import os
 import tkinter as tk
 from tkinter import ttk, filedialog
-
-from src.adj_list import AdjList
-from src.adj_matrix import AdjMatrix
-from src.inc_matrix import IncMatrix
 
 class App:
     def __init__(self):
         self.window = tk.Tk()
-        self.window.title('Grafy - projekt 1')
+        self.window.title('Grafy - projekt 2')
         self.window.geometry('1280x720')
 
         self.window.grid_columnconfigure(0, weight=0)
@@ -23,67 +18,60 @@ class App:
         menu = ttk.Frame(self.window)
         menu.grid(row=0, column=0, sticky='N', padx=10, pady=10)
 
-        ttk.Button(menu, text="Wczytaj graf", width=50, command=lambda: self.load_graph()).grid(row=0, column=0, pady=3, columnspan=3)
 
-        ttk.Separator(menu, orient='horizontal').grid(row=1, column=0, columnspan=3, sticky='EW', pady=15)
+        ttk.Label(menu, text='Podaj ciąg graficzny:').grid(row=0, column=0, columnspan=3, padx=5, pady=5)
+        self.sequence = ttk.Entry(menu, width=50)
+        self.sequence.grid(row=1, column=0, columnspan=3, pady=3)
+        ttk.Button(menu, text='Sprawdź sekwencję', width=50, command=lambda: self.check_sequence()).grid(row=2, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=3, column=0, columnspan=3, sticky='EW', pady=15)
 
-        ttk.Button(menu, text="Konwertuj do macierzy sąsiedztwa", width=50, command=lambda: self.convert_to_adj_matrix()).grid(row=2, column=0, pady=3, columnspan=3)
-        ttk.Button(menu, text="Konwertuj do macierzy incydencji", width=50, command=lambda: self.convert_to_inc_matrix()).grid(row=3, column=0, pady=3, columnspan=3)
-        ttk.Button(menu, text="Konwertuj do listy sąsiedztwa", width=50, command=lambda: self.convert_to_adj_list()).grid(row=4, column=0, pady=3, columnspan=3)
+        ttk.Label(menu, text='Podaj ilość randomizacji:').grid(row=4, column=0, columnspan=3, padx=5, pady=5)
+        self.randomize_count = ttk.Entry(menu, width=50)
+        self.randomize_count.grid(row=5, column=0, columnspan=3, pady=3)
+        ttk.Button(menu, text='Randomizuj', width=50, command=lambda: self.randomize_graph()).grid(row=6, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=7, column=0, columnspan=3, sticky='EW', pady=15)
 
-        ttk.Separator(menu, orient='horizontal').grid(row=5, column=0, columnspan=3, sticky='EW', pady=15)
+        ttk.Button(menu, text='Pokaż spójne składowe', width=50, command=lambda: self.show_connected_components()).grid(row=8, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=9, column=0, columnspan=3, sticky='EW', pady=15)
 
-        ttk.Label(menu, text='n').grid(row=6, column=0)
+        ttk.Button(menu, text='Wygeneruj graf eulerowski', width=50, command=lambda: self.generate_euler()).grid(row=10, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=11, column=0, columnspan=3, sticky='EW', pady=15)
+
+        ttk.Label(menu, text='n').grid(row=12, column=0)
         self.n = ttk.Entry(menu, width=10)
-        self.n.grid(row=7, column=0)
+        self.n.grid(row=13, column=0)
 
-        ttk.Label(menu, text='l').grid(row=6, column=1)
-        self.l = ttk.Entry(menu, width=10)
-        self.l.grid(row=7, column=1)
+        ttk.Label(menu, text='k').grid(row=12, column=2)
+        self.k = ttk.Entry(menu, width=10)
+        self.k.grid(row=13, column=2, padx=5)
 
-        ttk.Label(menu, text='p').grid(row=6, column=2)
-        self.p = ttk.Entry(menu, width=10)
-        self.p.grid(row=7, column=2)
-
-        ttk.Button(menu, text="Graf losowy G(n, l)", width=50, command=lambda: self.generate_n_l_graph()).grid(row=8, column=0, pady=3, columnspan=3)
-        ttk.Button(menu, text="Graf losowy G(n, p)", width=50, command=lambda: self.generate_n_p_graph()).grid(row=9, column=0, pady=3, columnspan=3)
-
-        ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
-
-        ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
+        ttk.Button(menu, text='Wygeneruj graf k-regularny', width=50, command=lambda: self.generate_k_regular()).grid(row=14, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=15, column=0, columnspan=3, sticky='EW', pady=15)
+        
+        ttk.Button(menu, text='Wczytaj graf', width=50, command=lambda: self.load_graph()).grid(row=16, column=0, pady=3, columnspan=3)
+        ttk.Button(menu, text='Znajdź cykl hamiltonowski', width=50, command=lambda: self.find_hamiltonian_cycle()).grid(row=17, column=0, pady=3, columnspan=3)
 
         self.window.mainloop()
 
-    def load_graph(self):
-        filepath = filedialog.askopenfilename(
-            initialdir=os.getcwd(),
-            title="Wczytaj graf",
-            filetypes=(('DAT', '*.dat'), )
-        )
-
-        with open(filepath, 'r') as f:
-            first_line = f.readline()
-            identifier = int(first_line.strip())
-            if identifier == 1:
-                self.graph = IncMatrix(filepath=filepath)
-            elif identifier == 2:
-                self.graph = AdjList(filepath=filepath)
-            else:
-                self.graph = AdjMatrix(filepath=filepath)
-
-    def convert_to_adj_matrix(self):
-        self.graph = self.graph.convert_to_adj_matrix()
-
-    def convert_to_inc_matrix(self):
-        self.graph = self.graph.convert_to_inc_matrix()
-
-    def convert_to_adj_list(self):
-        self.graph = self.graph.convert_to_adj_list()
-
-    def generate_n_l_graph(self):
+    def check_sequence(self):
         pass
 
-    def generate_n_p_graph(self):
+    def randomize_graph(self):
+        pass
+
+    def show_connected_components(self):
+        pass
+
+    def generate_euler(self):
+        pass
+
+    def generate_k_regular(self):
+        pass
+
+    def load_graph(self):
+        pass
+
+    def find_hamiltonian_cycle(self):
         pass
 
 
