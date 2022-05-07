@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 
+from src import utils
+
 class App:
     def __init__(self):
         self.window = tk.Tk()
@@ -54,7 +56,18 @@ class App:
         self.window.mainloop()
 
     def check_sequence(self):
-        pass
+        l = []
+        for c in self.sequence.get():
+            if c not in '0123456789':
+                return
+            else:
+                l.append(int(c))
+
+        if utils.check_sequence(l):
+            print('Sekwencja jest ciągiem graficznym')
+        else:
+            print('Sekwencja nie jest ciągiem graficznym')
+
 
     def randomize_graph(self):
         pass
