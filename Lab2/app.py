@@ -5,6 +5,8 @@ from src import utils
 
 class App:
     def __init__(self):
+        self.graph = None
+
         self.window = tk.Tk()
         self.window.title('Grafy - projekt 2')
         self.window.geometry('1280x720')
@@ -59,18 +61,29 @@ class App:
         l = []
         for c in self.sequence.get():
             if c not in '0123456789':
-                return
+                return False
             else:
                 l.append(int(c))
 
-        if utils.check_sequence(l):
+        if utils.check_sequence(l.copy()):
             print('Sekwencja jest ciągiem graficznym')
+            self.graph = utils.create_graph_from_sequence(l.copy())
+            print(self.graph.edges)
+            return True
         else:
             print('Sekwencja nie jest ciągiem graficznym')
+            return False
 
 
     def randomize_graph(self):
-        pass
+        if not self.check_sequence():
+            return False
+
+        count = int(self.randomize_count.get())
+        self.graph = utils.randomize_graph(self.graph, count)
+        print(self.graph.edges)
+        '''Po randomizacji w grafie może zostać mniej krawędzi (randomizacja spowoduje duplikację krawędzi)'''
+        
 
     def show_connected_components(self):
         pass
