@@ -64,6 +64,31 @@ def randomize_graph(g, count):
     return nx.Graph(edges)
 
 
+def Components_R(nr, node, g, comp):
+    for nbr in g[node]: #Przeglądam wszystkich sąsiadów danego węzła
+        print("Nbr: ", nbr)
+        if comp[nbr] == -1: #jeżeli sąsiad nie był odwiedzony przypisuje mu wartość odpowiedniej grupy
+            comp[nbr] = nr
+            Components_R(nr, nbr, g, comp) #przeszkuję w głąb sąsiadów sąsiada
+
+def Components(g):
+    nr = 0
+    g = create_graph_from_sequence(g)
+    comp = {} #Tworze słownik key: idex węzła value: grupa do której przynależy
+    for node in g:
+        comp[node] = -1 #Zgodnie z algorytmem przypisuje każdemu kluczowi wartość -1
+    for node in g:
+        if comp[node] == -1: #sprawdzam czy węzeł był odwiedzony -1 -> nie był każda inna był
+            nr = nr+1 #nowa grupa
+            comp[node] = nr #przypisuje do noda do której grupy przynależy
+            print("componets: ", node)
+            Components_R(nr, node, g, comp) #Przeszukiwanie w głab po każdym sąsiedzie węzła 
+                                    #  nr -> numer grupy, node -> aktualny węzeł, g->Oryginalny graf, comp->słownik z przynależnością
+    print(comp)
+    return comp
+
+
+
 if __name__ == '__main__':
     print(check_sequence([3,2,3,2,2]))
     create_graph_from_sequence([3,2,3,2,2])
@@ -71,6 +96,12 @@ if __name__ == '__main__':
     print(check_sequence([4,2,2,3,2,1,4,2,2,2,2]))
     create_graph_from_sequence([4,2,2,3,2,1,4,2,2,2,2])
 
+    print(check_sequence([2,2,2,2,2,2]))
+    if check_sequence([2,2,2,2,2,2]):
+        create_graph_from_sequence([2,2,2,2,2,2])
+
+
     randomize_graph(create_graph_from_sequence([3,2,3,2,2]), 2)
     
+    Components(([2,2,2,2,2,2]))
         
