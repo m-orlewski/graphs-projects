@@ -55,6 +55,9 @@ class App:
         ttk.Button(menu, text='Wczytaj graf', width=50, command=lambda: self.load_graph()).grid(row=16, column=0, pady=3, columnspan=3)
         ttk.Button(menu, text='Znajdź cykl hamiltonowski', width=50, command=lambda: self.find_hamiltonian_cycle()).grid(row=17, column=0, pady=3, columnspan=3)
 
+        ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
+        ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
+
         self.window.mainloop()
 
     def check_sequence(self):
