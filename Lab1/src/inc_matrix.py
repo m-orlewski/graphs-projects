@@ -14,6 +14,13 @@ class IncMatrix():
         elif data:
             self.representation = data
 
+    def __str__(self):
+        result = ''
+        for line in self.representation:
+            result+=str(line)
+            result+="\n"
+        return result.replace('[', ' ').replace(']', ' ')
+
     def convert_to_adj_matrix(self):
         n = len(self.representation) # ilość węzłów grafu
         data = [[0 for _ in range(n)] for _ in range(n)]

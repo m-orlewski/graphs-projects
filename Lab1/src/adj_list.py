@@ -17,6 +17,14 @@ class AdjList():
                     key += 1
         elif data:
             self.representation = data
+
+    def __str__(self):
+        result = ''
+        for vertex, neighbors in self.representation.items():
+            result += str(vertex) + ': '
+            result += ', '.join(map(str, neighbors))
+            result += '\n'
+        return result
     
     def convert_to_adj_matrix(self):
         n = 0 # ilość węzłów grafu 
