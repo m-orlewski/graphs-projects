@@ -5,6 +5,7 @@ from tkinter import ttk, filedialog
 from src.adj_list import AdjList
 from src.adj_matrix import AdjMatrix
 from src.inc_matrix import IncMatrix
+from src.random_graf import gen_n_l,gen_n_p
 
 import tools.draw
 from tools.tkinter import InfoLabel
@@ -98,10 +99,15 @@ class App:
         self.print_graph()
 
     def generate_n_l_graph(self):
-        pass
+        self.graph = AdjList(data=gen_n_l(self.n.get(),self.l.get()))
+        self.draw_graph()
+        self.print_graph()
+        
 
     def generate_n_p_graph(self):
-        pass
+        self.graph = AdjList(data=gen_n_p(self.n.get(),self.p.get()))
+        self.draw_graph()
+        self.print_graph()
 
     def add_text_frame(self, row, column):
         frame = ttk.Frame(self.window)
