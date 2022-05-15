@@ -43,24 +43,44 @@ def create_graph_from_sequence(sequence):
     
     return g
 
+def rand_change_edge(edges):
+
+    [i, j] = random.sample(range(len(edges)), 2) # losujemy 2 krawędzie
+    e1=edges[i].copy()
+    e2=edges[j].copy()
+    e1[1]=edges[j][1]
+    e2[0]=edges[i][1]
+    e2[1]=edges[j][0]
+
+    l=0
+
+    while e1 in edges or e2 in edges or [e1[1],e1[0]] in edges or [e2[1],e2[0]] in edges or e1[0]==e1[1] or e2[0]==e2[1]: #Powtarzamy losowanie dopuki nowe krawedzie nie będą duplikatami starych lub petlami na danym wierzcholku
+        [i, j] = random.sample(range(len(edges)), 2) 
+        e1=edges[i].copy()
+        e2=edges[j].copy()
+        e1[1]=edges[j][1]
+        e2[0]=edges[i][1]
+        e2[1]=edges[j][0]
+        l=l+1
+        if l==200:
+            # print(edges)
+            # print(e1,e2)
+            break
+
+    edges[i]=e1
+    edges[j]=e2
+
 def randomize_graph(g, count):
     '''Randomizuje graf zamieniając count razy losową parę krawędzi ab i cd na ad i bc'''
     edges = list(g.edges)
     for i in range(len(edges)):
         edges[i] = list(edges[i]) # tuples -> lists
 
+    # print(edges)
+    for i in range(count):
+        rand_change_edge(edges) # wywołanie funkcji zamieniającej dwie krawędzie
 
-    for _ in range(count):
-        [i, j] = random.sample(range(len(edges)), 2) # losujemy 2 krawędzie
-
-        b = edges[i][1]
-        c = edges[j][0]
-        d = edges[j][1]
-
-        edges[i][1] = d
-        edges[j][0] = b 
-        edges[j][1] = c
-
+    # print(edges)
     return nx.Graph(edges)
 
 
@@ -73,7 +93,6 @@ def components_R(nr, node, g, comp):
 
 def components(g):
     nr = 0
-    g = create_graph_from_sequence(g)
     comp = {} #Tworze słownik key: idex węzła value: grupa do której przynależy
     for node in g:
         comp[node] = -1 #Zgodnie z algorytmem przypisuje każdemu kluczowi wartość -1
@@ -87,7 +106,54 @@ def components(g):
     print(comp)
     return comp
 
+def generate_random_k_regular(k,n=None):
+    repet=False
+    if n==None:
+        n=random.randrange(2,100) #Losowanie wartości n jeśli nie podana
+        repet=True
 
+    seq=[k for _ in range(n)] #Tworzenie sekwancji dla grafu k-regularnego.
+    if(check_sequence(seq.copy())): #sprawdzenie czy seqwencja jest poprawna
+        graf=create_graph_from_sequence(seq)
+        n=len(graf.edges())
+        graf=randomize_graph(graf,100) #randomizowanie grafu
+        l=0
+        while n!=len(graf.edges()):
+            graf=create_graph_from_sequence(seq)
+            graf=randomize_graph(graf,100) #randomizowanie grafu
+            l=l+1
+            if(l==200):
+                break
+        return graf
+    else:
+        if repet:
+            generate_random_k_regular(k)
+        else:
+            return None
+
+def try_next_Hamilton(graf,route,nodes): #Funkcja Rekurencyjna do szukania Hamiltona
+    w=False # Wynik
+    for n in list(graf[route[-1]]): #Przejscie po wierzchołkach od bierzącego wierzchołka
+        if n not in route: #jesli wierzchołka nie ma w drodze
+            route.append(n) #dodjemy nowy wierzchołek do drogi
+            if len(route)==nodes and route[0] in list(graf[route[-1]]): #jesli mamy wszyszskie wierzchołki w drodze sprawdzamy czy możemy dodać wierzchołek startowy jak tk jest to graf Hamiltonowski
+                route.append(route[0])
+                return True
+            w=try_next_Hamilton(graf,route,nodes) #Wywołujemy sprawdzanie wybranego wierzchołka
+            if w:
+                return True 
+            else:
+                route.pop() #Usuwamy ostatni elemant drogi
+            
+    return False
+    
+def isHamilton(graf): #Funkcja sprawdzająca czy graf jest Hamiltonowski i zwracająca droge
+    if set(components(graf).values()) != {1}: #Sprawdzenie czy jest spójny
+        return False
+    nodes=len(graf) #Ilość wierzchołków grafu
+    route=[1] #Stos do wyznaczanje drogi
+    # print(graf.edges())
+    return [try_next_Hamilton(graf,route,nodes),route] #Wywołanie rekurancji do szukania Hamiltona
 
 if __name__ == '__main__':
     print(check_sequence([3,2,3,2,2]))
@@ -100,8 +166,11 @@ if __name__ == '__main__':
     if check_sequence([2,2,2,2,2,2]):
         create_graph_from_sequence([2,2,2,2,2,2])
 
-
-    randomize_graph(create_graph_from_sequence([3,2,3,2,2]), 2)
+    randomize_graph(create_graph_from_sequence([3,2,3,2,2,5,5,5,5,5,5,4]), 100)
     
-    components(([2,2,2,2,2,2]))
-        
+    components(create_graph_from_sequence([2,2,2,2,2,2]))
+
+    generate_random_k_regular(4)
+
+    print(isHamilton(generate_random_k_regular(2,8)))
+    print(isHamilton(randomize_graph(create_graph_from_sequence([3,2,3,2,2,5,5,5,5,5,5,4]),10)))
