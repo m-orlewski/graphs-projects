@@ -99,13 +99,13 @@ class App:
         self.print_graph()
 
     def generate_n_l_graph(self):
-        self.graph = AdjList(data=gen_n_l(self.n.get(),self.l.get()))
+        self.graph = AdjList(data=gen_n_l(int(self.n.get()),int(self.l.get())))
         self.draw_graph()
         self.print_graph()
         
 
     def generate_n_p_graph(self):
-        self.graph = AdjList(data=gen_n_p(self.n.get(),self.p.get()))
+        self.graph = AdjList(data=gen_n_p(int(self.n.get()),float(self.p.get())))
         self.draw_graph()
         self.print_graph()
 
