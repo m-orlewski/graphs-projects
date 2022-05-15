@@ -155,40 +155,39 @@ def generate_random_euler_graph(vertices_amount):
             return create_graph_from_sequence(sequence)
 
 def find_euler_cycle(graph):
-    graph_copy = nx.Graph(graph)
-    print(graph_copy.edges)
+    graph_copy = nx.Graph(graph) # kopia grafu
     cycle = []
 
-    v = list(graph_copy.nodes)[0]
+    v = list(graph_copy.nodes)[0] # wybieramy wierzchołek startowy
     cycle.append(v)
     while True:
         neighbors = list(graph_copy.adj[v])
-        if len(neighbors) == 0:
+        if len(neighbors) == 0: # wierzchołek nie ma sąsiadów - koniec cyklu
             break
-        elif len(neighbors) == 1:
+        elif len(neighbors) == 1: # wierzchołek ma jednego są sąsiada - wybieramy go na następny
             u = neighbors[0]
-            cycle.append(u)
-            graph_copy.remove_edge(v, u)
-            v = u
-        else:
-            for u in neighbors:
+            cycle.append(u) # dopisujemy do cyklu
+            graph_copy.remove_edge(v, u) # usuwamy krawędź którą przeszliśmy
+            v = u # kontynuujemy poszukiwanie cyklu od nowego wierzchołka
+        else: # wierzchołek ma >1 sąsiadów
+            for u in neighbors: # szukamy sąsiada który nie jest mostem
                 if is_bridge(graph_copy, u, v):
                     continue
                 else:
                     cycle.append(u)
-                    graph_copy.remove_edge(v, u)
-                    v = u
+                    graph_copy.remove_edge(v, u) # dopisujemy do cyklu
+                    v = u # kontynuujemy poszukiwanie cyklu od nowego wierzchołka
                     break
 
     return cycle
 
 def is_bridge(graph, u, v):
-    components_before = list(nx.connected_components(graph))
+    components_before = list(nx.connected_components(graph)) # lista spójnych składowych przed usunięciem krawędzi
     graph.remove_edge(u, v)
-    components_after = list(nx.connected_components(graph))
+    components_after = list(nx.connected_components(graph)) # lista spójnych składowych po usunięciu krawędzi
     graph.add_edge(u, v)
 
-    return True if len(components_before) != len(components_after) else False
+    return True if len(components_before) != len(components_after) else  # jeżeli ilość spójnych się zmieniła -> u-v to most
 
 def nx_graph_to_representation(graph):
     representation = {}
