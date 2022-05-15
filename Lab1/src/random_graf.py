@@ -1,4 +1,5 @@
 from random import sample,random
+from src.adj_list import AdjList
 
 def gen_n_l(n,l):
     if n<2 or l<0 or l>(n*(n-1))/2 :
@@ -9,6 +10,7 @@ def gen_n_l(n,l):
     for e in edges: #Dodanie wylosowanych krawedzi do reprezentacji
         adlist[e[0]].append(e[1])
         adlist[e[1]].append(e[0])
+    print(adlist)
     return adlist
 
 def gen_n_p(n,p):

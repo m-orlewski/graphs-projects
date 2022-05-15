@@ -29,7 +29,7 @@ class AdjList():
     def convert_to_adj_matrix(self):
         n = 0 # ilość węzłów grafu 
         for value in self.representation.values():
-            if max(value) > n:
+            if len(value) and max(value) > n:
                 n = max(value)
 
         data = [[0 for _ in range(n)] for _ in range(n)]
@@ -46,7 +46,7 @@ class AdjList():
         edges = 0 # ilość krawędzi grafu
         for value in self.representation.values(): # wyliczenie ilości węzłów i krawędzi
             edges += len(value)
-            if max(value) > n:
+            if len(value) and max(value) > n:
                 n = max(value)
 
         edges //= 2
