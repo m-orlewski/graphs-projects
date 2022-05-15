@@ -54,7 +54,7 @@ def rand_change_edge(edges):
 
     l=0
 
-    while e1 in edges or e2 in edges or [e1[1],e1[0]] in edges or [e2[1],e2[0]] in edges or e1[0]==e1[1] or e2[0]==e2[1]: #Powtarzamy losowanie dopuki nowe krawedzie nie będą duplikatami starych lub petlami na danym wierzcholku
+    while e1 in edges or e2 in edges or [e1[1],e1[0]] in edges or [e2[1],e2[0]] in edges or e1[0]==e1[1] or e2[0]==e2[1]: #Powtarzamy losowanie dopóki nowe krawedzie nie będą duplikatami starych lub petlami na danym wierzcholku
         [i, j] = random.sample(range(len(edges)), 2) 
         e1=edges[i].copy()
         e2=edges[j].copy()
@@ -107,10 +107,10 @@ def components(g):
     return comp
 
 def generate_random_k_regular(k,n=None):
-    repet=False
+    repeat=False
     if n==None:
         n=random.randrange(2,100) #Losowanie wartości n jeśli nie podana
-        repet=True
+        repeat=True
 
     seq=[k for _ in range(n)] #Tworzenie sekwancji dla grafu k-regularnego.
     if(check_sequence(seq.copy())): #sprawdzenie czy seqwencja jest poprawna
@@ -126,7 +126,7 @@ def generate_random_k_regular(k,n=None):
                 break
         return graf
     else:
-        if repet:
+        if repeat:
             generate_random_k_regular(k)
         else:
             return None
@@ -155,6 +155,20 @@ def isHamilton(graf): #Funkcja sprawdzająca czy graf jest Hamiltonowski i zwrac
     # print(graf.edges())
     return [try_next_Hamilton(graf,route,nodes),route] #Wywołanie rekurancji do szukania Hamiltona
 
+def generate_random_euler_graph(vertices_amount):
+    while True:
+        sequence = [random.randrange(2, vertices_amount, 2) for _ in range(vertices_amount-2)]
+        print(sequence)
+        if random.choice([True, False]):
+            sequence.append(random.randrange(2, vertices_amount, 2)) 
+            sequence.append(random.randrange(2, vertices_amount, 2))
+        else:
+            sequence.append(random.randrange(2, vertices_amount, 2) - 1)
+            sequence.append(random.randrange(2, vertices_amount, 2) - 1)
+
+        if check_sequence(sequence.copy()):
+            return create_graph_from_sequence(sequence)
+
 if __name__ == '__main__':
     print(check_sequence([3,2,3,2,2]))
     create_graph_from_sequence([3,2,3,2,2])
@@ -174,3 +188,5 @@ if __name__ == '__main__':
 
     print(isHamilton(generate_random_k_regular(2,8)))
     print(isHamilton(randomize_graph(create_graph_from_sequence([3,2,3,2,2,5,5,5,5,5,5,4]),10)))
+
+    print(generate_random_euler_graph(6).edges)
