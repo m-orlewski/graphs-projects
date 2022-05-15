@@ -46,22 +46,24 @@ class App:
         ttk.Button(menu, text='Pokaż spójne składowe', width=50, command=lambda: self.show_connected_components()).grid(row=8, column=0, pady=3, columnspan=3)
         ttk.Separator(menu, orient='horizontal').grid(row=9, column=0, columnspan=3, sticky='EW', pady=15)
 
-        ttk.Button(menu, text='Wygeneruj graf eulerowski', width=50, command=lambda: self.generate_euler()).grid(row=10, column=0, pady=3, columnspan=3)
-        ttk.Separator(menu, orient='horizontal').grid(row=11, column=0, columnspan=3, sticky='EW', pady=15)
+        ttk.Label(menu, text='n').grid(row=10, column=0)
+        self.n1 = ttk.Entry(menu, width=10)
+        self.n1.grid(row=11, column=0)
+        ttk.Button(menu, text='Wygeneruj graf eulerowski', width=50, command=lambda: self.generate_euler()).grid(row=12, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=13, column=0, columnspan=3, sticky='EW', pady=15)
 
-        ttk.Label(menu, text='n').grid(row=12, column=0)
-        self.n = ttk.Entry(menu, width=10)
-        self.n.grid(row=13, column=0)
+        ttk.Label(menu, text='n').grid(row=14, column=0)
+        self.n2 = ttk.Entry(menu, width=10)
+        self.n2.grid(row=15, column=0)
 
-        ttk.Label(menu, text='k').grid(row=12, column=2)
+        ttk.Label(menu, text='k').grid(row=14, column=2)
         self.k = ttk.Entry(menu, width=10)
-        self.k.grid(row=13, column=2, padx=5)
+        self.k.grid(row=15, column=2, padx=5)
 
-        ttk.Button(menu, text='Wygeneruj graf k-regularny', width=50, command=lambda: self.generate_k_regular()).grid(row=14, column=0, pady=3, columnspan=3)
-        ttk.Separator(menu, orient='horizontal').grid(row=15, column=0, columnspan=3, sticky='EW', pady=15)
+        ttk.Button(menu, text='Wygeneruj graf k-regularny', width=50, command=lambda: self.generate_k_regular()).grid(row=16, column=0, pady=3, columnspan=3)
+        ttk.Separator(menu, orient='horizontal').grid(row=17, column=0, columnspan=3, sticky='EW', pady=15)
         
-        ttk.Button(menu, text='Wczytaj graf', width=50, command=lambda: self.load_graph()).grid(row=16, column=0, pady=3, columnspan=3)
-        ttk.Button(menu, text='Znajdź cykl hamiltonowski', width=50, command=lambda: self.find_hamiltonian_cycle()).grid(row=17, column=0, pady=3, columnspan=3)
+        ttk.Button(menu, text='Znajdź cykl hamiltonowski', width=50, command=lambda: self.find_hamiltonian_cycle()).grid(row=18, column=0, pady=3, columnspan=3)
 
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
@@ -96,7 +98,6 @@ class App:
         self.graph = utils.randomize_graph(self.graph, count)
         self.draw_graph()
         self.print_graph()
-        '''Po randomizacji w grafie może zostać mniej krawędzi (randomizacja spowoduje duplikację krawędzi)'''
         
 
     def show_connected_components(self):
@@ -120,18 +121,19 @@ class App:
 
 
     def generate_euler(self):
+        self.graph = utils.generate_random_euler_graph(int(self.n1.get()))
         cycle = utils.find_euler_cycle(self.graph)
+        self.draw_graph()
+        self.result.show_normal(f"Cykl Eulera: {cycle}")
 
     def generate_k_regular(self):
-        self.graph = utils.generate_random_k_regular(int(self.k.get()), int(self.n.get()))
+        self.graph = utils.generate_random_k_regular(int(self.k.get()), int(self.n2.get()))
         if self.graph is None:
             self.result.show_normal("Blad generowania!")
             self.canvas.delete("all")
         self.draw_graph()
         self.print_graph()
 
-    def load_graph(self):
-        pass
 
     def find_hamiltonian_cycle(self):
         (isHamilton, cycle) = utils.isHamilton(self.graph)

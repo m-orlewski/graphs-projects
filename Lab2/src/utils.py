@@ -156,49 +156,39 @@ def generate_random_euler_graph(vertices_amount):
 
 def find_euler_cycle(graph):
     graph_copy = nx.Graph(graph)
+    print(graph_copy.edges)
     cycle = []
 
-    for node in graph_copy.nodes:
-        cycle.append(node)
-        cycle = find_euler_from_node(graph_copy, node, cycle)
-        if cycle is None:
-            continue
+    v = list(graph_copy.nodes)[0]
+    cycle.append(v)
+    while True:
+        neighbors = list(graph_copy.adj[v])
+        if len(neighbors) == 0:
+            break
+        elif len(neighbors) == 1:
+            u = neighbors[0]
+            cycle.append(u)
+            graph_copy.remove_edge(v, u)
+            v = u
         else:
-            return cycle
+            for u in neighbors:
+                if is_bridge(graph_copy, u, v):
+                    continue
+                else:
+                    cycle.append(u)
+                    graph_copy.remove_edge(v, u)
+                    v = u
+                    break
 
-
-def find_euler_from_node(graph_copy, start_node, cycle):
-    for node in graph_copy.adj[start_node]:
-        if next_edge_valid(graph_copy, start_node, node):
-            cycle.append(node)
-            graph_copy.remove_edge(start_node, node)
-            cycle = find_euler_from_node(graph_copy, node, cycle)
-    print(cycle)
     return cycle
 
-def next_edge_valid(graph_copy, start_node, node):
-   
-    if len(graph_copy.adj[start_node]) == 1:
-        return True
-    else:
-        visited = [False] * (len(graph_copy.nodes))
-        count1 = DFSCount(start_node, visited)
+def is_bridge(graph, u, v):
+    components_before = list(nx.connected_components(graph))
+    graph.remove_edge(u, v)
+    components_after = list(nx.connected_components(graph))
+    graph.add_edge(u, v)
 
-        graph_copy.remove_edge(start_node, node)
-        visited = [False] * (len(graph_copy.nodes))
-        count2 = DFSCount(start_node, visited)
-
-        graph_copy.add_edge(start_node, node)
-
-        return False if count1 > count2 else True
-
-def DFSCount(graph_copy, node, visited):
-    count = 1
-    visited[node] = True
-    for i in graph_copy.adj[node]:
-        if visited[i] == False:
-            count = count + DFSCount(graph_copy, i, visited)
-    return count
+    return True if len(components_before) != len(components_after) else False
 
 def nx_graph_to_representation(graph):
     representation = {}
