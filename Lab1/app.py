@@ -99,15 +99,22 @@ class App:
         self.print_graph()
 
     def generate_n_l_graph(self):
-        self.graph = AdjList(data=gen_n_l(int(self.n.get()),int(self.l.get())))
-        self.draw_graph()
-        self.print_graph()
+        try:
+            self.graph = AdjList(data=gen_n_l(int(self.n.get()),int(self.l.get())))
+            self.draw_graph()
+            self.print_graph()
+        except:
+            self.result.show_normal("Błędne wartości: n>=2, l>=0, l<=(n*(n-1)/2)")
+        
         
 
     def generate_n_p_graph(self):
-        self.graph = AdjList(data=gen_n_p(int(self.n.get()),float(self.p.get())))
-        self.draw_graph()
-        self.print_graph()
+        try:
+            self.graph = AdjList(data=gen_n_p(int(self.n.get()),float(self.p.get())))
+            self.draw_graph()
+            self.print_graph()
+        except:
+            self.result.show_normal("Błędne wartości: n>=2, p>=0, p<=1")
 
     def add_text_frame(self, row, column):
         frame = ttk.Frame(self.window)

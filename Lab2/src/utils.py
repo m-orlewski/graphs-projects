@@ -63,8 +63,6 @@ def rand_change_edge(edges):
         e2[1]=edges[j][0]
         l=l+1
         if l==200:
-            # print(edges)
-            # print(e1,e2)
             break
 
     edges[i]=e1
@@ -76,17 +74,14 @@ def randomize_graph(g, count):
     for i in range(len(edges)):
         edges[i] = list(edges[i]) # tuples -> lists
 
-    # print(edges)
     for i in range(count):
         rand_change_edge(edges) # wywołanie funkcji zamieniającej dwie krawędzie
 
-    # print(edges)
     return nx.Graph(edges)
 
 
 def components_R(nr, node, g, comp):
     for nbr in g[node]: #Przeglądam wszystkich sąsiadów danego węzła
-        print("Nbr: ", nbr)
         if comp[nbr] == -1: #jeżeli sąsiad nie był odwiedzony przypisuje mu wartość odpowiedniej grupy
             comp[nbr] = nr
             components_R(nr, nbr, g, comp) #przeszkuję w głąb sąsiadów sąsiada
@@ -100,10 +95,8 @@ def components(g):
         if comp[node] == -1: #sprawdzam czy węzeł był odwiedzony -1 -> nie był każda inna był
             nr = nr+1 #nowa grupa
             comp[node] = nr #przypisuje do noda do której grupy przynależy
-            print("componets: ", node)
             components_R(nr, node, g, comp) #Przeszukiwanie w głab po każdym sąsiedzie węzła 
                                     #  nr -> numer grupy, node -> aktualny węzeł, g->Oryginalny graf, comp->słownik z przynależnością
-    print(comp)
     return comp
 
 def generate_random_k_regular(k,n=None):
@@ -149,25 +142,71 @@ def try_next_Hamilton(graf,route,nodes): #Funkcja Rekurencyjna do szukania Hamil
     
 def isHamilton(graf): #Funkcja sprawdzająca czy graf jest Hamiltonowski i zwracająca droge
     if set(components(graf).values()) != {1}: #Sprawdzenie czy jest spójny
-        return False
+        return (False,None)
     nodes=len(graf) #Ilość wierzchołków grafu
     route=[1] #Stos do wyznaczanje drogi
-    # print(graf.edges())
     return [try_next_Hamilton(graf,route,nodes),route] #Wywołanie rekurancji do szukania Hamiltona
 
 def generate_random_euler_graph(vertices_amount):
     while True:
-        sequence = [random.randrange(2, vertices_amount, 2) for _ in range(vertices_amount-2)]
-        print(sequence)
-        if random.choice([True, False]):
-            sequence.append(random.randrange(2, vertices_amount, 2)) 
-            sequence.append(random.randrange(2, vertices_amount, 2))
-        else:
-            sequence.append(random.randrange(2, vertices_amount, 2) - 1)
-            sequence.append(random.randrange(2, vertices_amount, 2) - 1)
+        sequence = [random.randrange(2, vertices_amount, 2) for _ in range(vertices_amount)]
 
         if check_sequence(sequence.copy()):
             return create_graph_from_sequence(sequence)
+
+def find_euler_cycle(graph):
+    graph_copy = nx.Graph(graph)
+    cycle = []
+
+    for node in graph_copy.nodes:
+        cycle.append(node)
+        cycle = find_euler_from_node(graph_copy, node, cycle)
+        if cycle is None:
+            continue
+        else:
+            return cycle
+
+
+def find_euler_from_node(graph_copy, start_node, cycle):
+    for node in graph_copy.adj[start_node]:
+        if next_edge_valid(graph_copy, start_node, node):
+            cycle.append(node)
+            graph_copy.remove_edge(start_node, node)
+            cycle = find_euler_from_node(graph_copy, node, cycle)
+    print(cycle)
+    return cycle
+
+def next_edge_valid(graph_copy, start_node, node):
+   
+    if len(graph_copy.adj[start_node]) == 1:
+        return True
+    else:
+        visited = [False] * (len(graph_copy.nodes))
+        count1 = DFSCount(start_node, visited)
+
+        graph_copy.remove_edge(start_node, node)
+        visited = [False] * (len(graph_copy.nodes))
+        count2 = DFSCount(start_node, visited)
+
+        graph_copy.add_edge(start_node, node)
+
+        return False if count1 > count2 else True
+
+def DFSCount(graph_copy, node, visited):
+    count = 1
+    visited[node] = True
+    for i in graph_copy.adj[node]:
+        if visited[i] == False:
+            count = count + DFSCount(graph_copy, i, visited)
+    return count
+
+def nx_graph_to_representation(graph):
+    representation = {}
+
+    for node in graph.nodes:
+        representation[node] = list(graph.adj[node])
+
+    return dict(sorted(representation.items(), key=lambda x: x[0]))
 
 if __name__ == '__main__':
     print(check_sequence([3,2,3,2,2]))
