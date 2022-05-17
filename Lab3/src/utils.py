@@ -69,7 +69,7 @@ def dijkstra(G,s): #G graf, s startowy wezel
         not_visited = list(filter(lambda x: x not in S, G.neighbors(current_node[0]))) # lista nieodwiedzonych sąsiadów current_node
         for node in not_visited: #petla po nieodwiedzonych sąsiadach
             relax(G, current_node[0], node) #relaksujemy koszty dotarcia i ustawiamy poprzeników dla sasiadów current_node
-    print_graph_paths(G,s) # do wyświetlania, nic specjalnego
+    #print_graph_paths(G,s) # do wyświetlania, nic specjalnego
 
 def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G graf, s startowy wezeł
     for node in G:
@@ -80,6 +80,53 @@ def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G g
            node = G.nodes[node]['prev']
         print(f"{string}{s}")
 
+def create_dist_matrix(g):
+    dmat=[]
+    for node in g:
+        dijkstra(g,node)
+        dmat.append([0 for _ in range(len(g.nodes))])
+        for dist in g.nodes.data("cost"):
+            dmat[-1][dist[0]-1]=dist[1]
+    return dmat
+
+def sum_dist_min(g):
+    mat=[sum(x) for x in create_dist_matrix(g)]
+    m=min(mat)
+    return (mat.index(m)+1,m)
+
+def max_dist_min(g):
+    mat=[max(x) for x in create_dist_matrix(g)]
+    m=min(mat)
+    return (mat.index(m)+1,m)
+
+def Minimal_spanning_tree_Prim(g):
+    w=g.copy()
+    n=len(g.nodes)
+    print(n)
+    t = nx.Graph()
+    node=1
+    route=[node]
+    t.add_node(node)
+    while len(t.nodes)!=n:
+        while w[node]=={}:
+            route.pop()
+            node=route[-1]
+        next_node=min(w[node].items(), key=lambda x: x[1]['weight'])
+        while next_node[0] in t:
+            w.remove_edge(node,next_node[0])
+            while w[node]=={}:
+                route.pop()
+                node=route[-1]
+            next_node=min(w[node].items(), key=lambda x: x[1]['weight'])
+        t.add_node(next_node[0])
+        route.append(next_node[0])
+        t.add_weighted_edges_from([(node,next_node[0],next_node[1]['weight'])])
+        w.remove_edge(node,next_node[0])
+        node=next_node[0]
+    return t
+
+
+
 if __name__ == '__main__':
     print(check_sequence([4,2,2,3,2,1,4,2,2,2,2]))
     a = create_graph_from_sequence([4,2,2,3,2,1,4,2,2,2,2])
@@ -88,6 +135,12 @@ if __name__ == '__main__':
     g.add_weighted_edges_from([(1,2,3), (1,3,2), (1,5,9), (2,4,2), (2,5,4), (3,5,6), (3,6,9),
                             (4,7,3), (5,7,1), (5,8,2), (6,8,1), (6,9,2), (7,10,5), (8,10,5),
                             (8,11,6), (8,12,9), (9,11,2), (10,12,5), (11,12,3)])
+    
     dijkstra(g,1)
+
+    #print(create_dist_matrix(g))
+    print(sum_dist_min(g))
+    print(max_dist_min(g))
+    print(Minimal_spanning_tree_Prim(g).edges())
     
     
