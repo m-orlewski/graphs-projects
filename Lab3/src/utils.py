@@ -1,6 +1,7 @@
+from asyncio.windows_events import NULL
 import networkx as nx
 import random
-
+import sys
 
 def check_sequence(sequence):
     '''Sprawdza czy podana sekwencja jest ciągiem graficznym'''
@@ -49,10 +50,44 @@ def create_graph_from_sequence(sequence):
         g.add_edge(random_node1, random_node2, weight = random.randint(1,10)) #dodaje krawędz z wagą pomiędzy nimi
     return g
 
+def init(G, s): 
+    nx.set_node_attributes(G, sys.maxsize, 'cost') #ustawiam koszt dotarcia do węzła jako inf
+    nx.set_node_attributes(G, NULL, 'prev') #ustawiam poprzednika na nieistenijącego
+    G.nodes[s]['cost'] = 0 #ustawiam koszt dotarcia do wezła startowego jako 0 i jego poprzednika jako null
+
+def relax(G, prev_node, current_node):
+    if G.nodes[current_node]['cost'] > G.nodes[prev_node]['cost'] + G[prev_node][current_node]['weight']: #jezeli koszt dotarcia do wezla jest wiekszy niz koszt dotarcia do poprzednika + waga krawedzi miedzy nimi
+        G.nodes[current_node]['cost'] = G.nodes[prev_node]['cost'] + G[prev_node][current_node]['weight'] # to ustawiam koszt dotarcia do konkretnego wezla jako suma kosztow
+        G.nodes[current_node]['prev'] = prev_node #ustawiam poprzednika
+
+def dijkstra(G,s): #G graf, s startowy wezel
+    init(G,s) #inicjalizujemy graf dodajemy potrzebne pola cost -> koszt dotarcia, prev -> poprzedni wezeł
+    S = [] #lista odwiedzonych węzłów
+    while sorted(S) != sorted(G.nodes): #dopóki odwiedzone węzły != wszystkim węzłom to liczymy koszta 
+        current_node = min(list(filter(lambda x: x[0] not in S, G.nodes.data('cost'))), key = lambda t: t[1]) #wybieramy wezel spośród nieodwiedzonych który ma najmniejszy koszt dotarcia
+        S.append(current_node[0]) #dodajemy takowy do odwiedzonych węzłów --->current_node => (numer węzła, koszt dotarcia) <---
+        not_visited = list(filter(lambda x: x not in S, G.neighbors(current_node[0]))) # lista nieodwiedzonych sąsiadów current_node
+        for node in not_visited: #petla po nieodwiedzonych sąsiadach
+            relax(G, current_node[0], node) #relaksujemy koszty dotarcia i ustawiamy poprzeników dla sasiadów current_node
+    print_graph_paths(G,s) # do wyświetlania, nic specjalnego
+
+def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G graf, s startowy wezeł
+    for node in G:
+        string = ""
+        print(f"cost from node 1 -> {node} ==> {G.nodes[node]['cost']} Path:  {node} -> ", end = "")
+        while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] != NULL:
+           string += f"{G.nodes[node]['prev']} -> "
+           node = G.nodes[node]['prev']
+        print(f"{string}{s}")
+
 if __name__ == '__main__':
     print(check_sequence([4,2,2,3,2,1,4,2,2,2,2]))
     a = create_graph_from_sequence([4,2,2,3,2,1,4,2,2,2,2])
-    print(a.edges)
-    print(nx.is_connected(a))
-
+    g = nx.Graph()
+    g.add_nodes_from([i for i in range(1, 13)])
+    g.add_weighted_edges_from([(1,2,3), (1,3,2), (1,5,9), (2,4,2), (2,5,4), (3,5,6), (3,6,9),
+                            (4,7,3), (5,7,1), (5,8,2), (6,8,1), (6,9,2), (7,10,5), (8,10,5),
+                            (8,11,6), (8,12,9), (9,11,2), (10,12,5), (11,12,3)])
+    dijkstra(g,1)
+    
     
