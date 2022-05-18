@@ -15,6 +15,13 @@ class AdjMatrix():
         elif data:
             self.representation = data
     
+    def __str__(self):
+        result = ''
+        for line in self.representation:
+            result+=str(line)
+            result+="\n"
+        return result.replace('[', ' ').replace(']', ' ')
+
     def convert_to_adj_matrix(self):
         return self
 

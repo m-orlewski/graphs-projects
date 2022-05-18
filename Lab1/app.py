@@ -5,6 +5,10 @@ from tkinter import ttk, filedialog
 from src.adj_list import AdjList
 from src.adj_matrix import AdjMatrix
 from src.inc_matrix import IncMatrix
+from src.random_graf import gen_n_l,gen_n_p
+
+import tools.draw
+from tools.tkinter import InfoLabel
 
 class App:
     def __init__(self):
@@ -21,6 +25,10 @@ class App:
         self.window.grid_rowconfigure(0, weight=1)
 
         menu = ttk.Frame(self.window)
+
+        self.add_canvas(row=0, column=4)
+        self.add_text_frame(row=0, column=2)
+
         menu.grid(row=0, column=0, sticky='N', padx=10, pady=10)
 
         ttk.Button(menu, text="Wczytaj graf", width=50, command=lambda: self.load_graph()).grid(row=0, column=0, pady=3, columnspan=3)
@@ -70,22 +78,66 @@ class App:
                 self.graph = AdjList(filepath=filepath)
             else:
                 self.graph = AdjMatrix(filepath=filepath)
+        
+        self.draw_graph()
+        self.print_graph()
+
+    def draw_graph(self):
+        if self.graph is not None:
+            tools.draw.draw_graph(self.canvas, self.graph)
 
     def convert_to_adj_matrix(self):
         self.graph = self.graph.convert_to_adj_matrix()
+        self.print_graph()
 
     def convert_to_inc_matrix(self):
         self.graph = self.graph.convert_to_inc_matrix()
+        self.print_graph()
 
     def convert_to_adj_list(self):
         self.graph = self.graph.convert_to_adj_list()
+        self.print_graph()
 
     def generate_n_l_graph(self):
-        pass
+        try:
+            self.graph = AdjList(data=gen_n_l(int(self.n.get()),int(self.l.get())))
+            self.draw_graph()
+            self.print_graph()
+        except:
+            self.result.show_normal("Błędne wartości: n>=2, l>=0, l<=(n*(n-1)/2)")
+        
+        
 
     def generate_n_p_graph(self):
-        pass
+        try:
+            self.graph = AdjList(data=gen_n_p(int(self.n.get()),float(self.p.get())))
+            self.draw_graph()
+            self.print_graph()
+        except:
+            self.result.show_normal("Błędne wartości: n>=2, p>=0, p<=1")
 
+    def add_text_frame(self, row, column):
+        frame = ttk.Frame(self.window)
+        frame.grid(row=row, column=column, sticky='NSWE')
+        frame.grid_propagate(False)
+
+        self.result = InfoLabel(frame, font=("Helvetica", 16))
+        self.result.grid(row=1, column=0)
+    
+    def add_canvas(self, row, column):
+        frame = ttk.Frame(self.window)
+        frame.grid(row=row, column=column, sticky='NSWE')
+        frame.grid_propagate(False)
+
+        self.canvas = tk.Canvas(frame)
+        self.canvas.grid(row=0, column=0)
+
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=1)
+
+    def print_graph(self):
+        if self.graph is not None:
+            self.result.show_normal(str(self.graph))
 
 if __name__ == '__main__':
     app = App()
