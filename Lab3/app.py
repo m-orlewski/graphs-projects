@@ -46,19 +46,19 @@ class App:
 
         self.window.mainloop()
 
-    def generate_random_graph_with_weights():
+    def generate_random_graph_with_weights(self):
         pass
 
-    def dijkstra():
+    def dijkstra(self):
         pass
 
-    def calculate_distance_matrix():
+    def calculate_distance_matrix(self):
         pass
 
-    def find_center_and_minmax_node():
+    def find_center_and_minmax_node(self):
         pass
 
-    def minimum_spanning_tree():
+    def minimum_spanning_tree(self):
         pass
 
 
