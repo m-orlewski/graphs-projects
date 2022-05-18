@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 
 from src import utils
+from src.digraph import Digraph
 
 class App:
     def __init__(self):
@@ -39,7 +40,8 @@ class App:
         ttk.Button(menu, text='Wygeneruj silnie spójny digraf z wagami', width=50, command=lambda: self.generate_strongly_connected_digraph()).grid(row=6, column=0, columnspan=3, pady=3)
         ttk.Separator(menu, orient='horizontal').grid(row=7, column=0, columnspan=3, sticky='EW', pady=15)
 
-        ttk.Button(menu, text='Znajdź odległości pomiędzy wszystkimi parami wierzchołków', width=50, command=lambda: self.find_distances()).grid(row=8, column=0, columnspan=3, pady=3)
+
+        ttk.Button(menu, text='Znajdź odległości pomiędzy wszystkimi parami wierzchołków', width=50, command=lambda: self.find_distances_johnson()).grid(row=8, column=0, columnspan=3, pady=3)
         ttk.Separator(menu, orient='horizontal').grid(row=9, column=0, columnspan=3, sticky='EW', pady=15)
 
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
