@@ -1,7 +1,12 @@
 from asyncio.windows_events import NULL
 import networkx as nx
 import random
+from os import path
 import sys
+
+sys.path.append('.')
+
+from Lab2.src.utils import components
 
 def check_sequence(sequence):
     '''Sprawdza czy podana sekwencja jest ciągiem graficznym'''
@@ -100,29 +105,32 @@ def max_dist_min(g):
     return (mat.index(m)+1,m)
 
 def Minimal_spanning_tree_Prim(g):
-    w=g.copy()
+    g=g.copy()
     n=len(g.nodes)
     print(n)
     t = nx.Graph()
     node=1
-    route=[node]
     t.add_node(node)
+    ce=[]
     while len(t.nodes)!=n:
-        while w[node]=={}:
-            route.pop()
-            node=route[-1]
-        next_node=min(w[node].items(), key=lambda x: x[1]['weight'])
-        while next_node[0] in t:
-            w.remove_edge(node,next_node[0])
-            while w[node]=={}:
-                route.pop()
-                node=route[-1]
-            next_node=min(w[node].items(), key=lambda x: x[1]['weight'])
-        t.add_node(next_node[0])
-        route.append(next_node[0])
-        t.add_weighted_edges_from([(node,next_node[0],next_node[1]['weight'])])
-        w.remove_edge(node,next_node[0])
-        node=next_node[0]
+        ce.extend(g.edges(node,data=True))
+        next_node=min(ce, key=lambda x: x[2]['weight'])
+        ce.remove(next_node)
+        ce=list(filter(lambda x: x[1]!=node, ce))
+        t.add_edge(*next_node[:2],weight=next_node[2]['weight'])
+        g.remove_node(node)
+        node=next_node[1]
+    return t
+
+def Minimal_spanning_tree_Kruskal(g):
+    g=g.copy()
+    n=len(g.nodes)
+    t = nx.Graph()
+    while len(t.edges)!=n-1:
+        edge=min(g.edges(data=True), key=lambda x: x[2]['weight'])
+        g.remove_edge(*edge[:2])
+        if edge[0] not in t or edge[1] not in t or components(t)[edge[0]] != components(t)[edge[1]]:
+            t.add_edge(*edge[:2],weight=edge[2]['weight'])
     return t
 
 
@@ -142,5 +150,7 @@ if __name__ == '__main__':
     print(sum_dist_min(g))
     print(max_dist_min(g))
     print(Minimal_spanning_tree_Prim(g).edges())
+    # print(components(g))
+    print(Minimal_spanning_tree_Kruskal(g).edges())
     
     

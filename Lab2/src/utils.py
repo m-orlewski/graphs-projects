@@ -187,7 +187,7 @@ def is_bridge(graph, u, v):
     components_after = list(nx.connected_components(graph)) # lista spójnych składowych po usunięciu krawędzi
     graph.add_edge(u, v)
 
-    return True if len(components_before) != len(components_after) else  # jeżeli ilość spójnych się zmieniła -> u-v to most
+    return True if len(components_before) != len(components_after) else False # jeżeli ilość spójnych się zmieniła -> u-v to most
 
 def nx_graph_to_representation(graph):
     representation = {}
