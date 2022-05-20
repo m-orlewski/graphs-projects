@@ -78,11 +78,11 @@ def dijkstra(G,s): #G graf, s startowy wezel
 def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G graf, s startowy wezeł
     for node in G:
         string = ""
-        print(f"cost from node 1 -> {node} ==> {G.nodes[node]['cost']} Path:  {node} -> ", end = "")
+        print(f"cost from node {s} -> {node} ==> {G.nodes[node]['cost']} Path:  {node}", end = "")
         while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] is not None:
-           string += f"{G.nodes[node]['prev']} -> "
-           node = G.nodes[node]['prev']
-        print(f"{string}{s}")
+            string += f" -> {G.nodes[node]['prev']}"
+            node = G.nodes[node]['prev']
+        print(f"{string}")
 
 def create_dist_matrix(g):
     dmat=[]
