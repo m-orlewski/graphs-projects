@@ -63,25 +63,30 @@ class App:
 
 
 if __name__ == '__main__':
-    app = App()
+    #app = App()
     g = Digraph()
-    '''
+    
     g.add_vertices([1,2,3,4,5,6,7]) # przykład silnie spójnego grafu
-    g.add_edge(1, 2)
-    g.add_edge(1, 3)
-    g.add_edge(1, 5)
-    g.add_edge(2, 1)
-    g.add_edge(2, 3)
-    g.add_edge(2, 4)
-    g.add_edge(2, 5)
-    g.add_edge(2, 7)
-    g.add_edge(3, 6)
-    g.add_edge(4, 2)
-    g.add_edge(4, 7)
-    g.add_edge(5, 7)
-    g.add_edge(6, 2)
-    g.add_edge(7, 6)
-    '''
+    g.add_edge(1, 2, weight = 6)
+    g.add_edge(1, 3, weight = 3)
+    g.add_edge(1, 5, weight = -1)
+    g.add_edge(2, 1, weight = 10)
+    g.add_edge(2, 3, weight = -5)
+    g.add_edge(2, 4, weight = -4)
+    g.add_edge(2, 5, weight = 4)
+    g.add_edge(2, 7, weight = 4)
+    g.add_edge(3, 6, weight = 2)
+    g.add_edge(4, 2, weight = 5)
+    g.add_edge(4, 7, weight = 9)
+    g.add_edge(5, 7, weight = -4)
+    g.add_edge(6, 2, weight = 9)
+    g.add_edge(7, 6, weight = 4)
+    print(utils.find_bellman_ford_path(g.graph, 1))
+    
+
+
+
+   
 
     '''
     g.add_vertices([i for i in range(1, 9)]) # przykład grafu o 4 spójnych składowych
@@ -97,4 +102,4 @@ if __name__ == '__main__':
     g.add_edge(7,8)
     '''
 
-    print(utils.Kosaraj(g))
+    #print(utils.Kosaraj(g))

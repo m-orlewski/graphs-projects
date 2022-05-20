@@ -1,3 +1,7 @@
+from src.digraph import Digraph
+import networkx as nx
+import sys
+
 def Kosaraj(digraph):
     g = digraph.graph # nie potrzebujemy klasy Digraph, wystarczy nx.DiGraph()
     d = {}
@@ -41,5 +45,37 @@ def components_r(nr, v, gt, comp):
         if comp[u] == -1:
             comp[u] = nr
             components_r(nr, u, gt, comp)
+
+
+def init(G, s): 
+    nx.set_node_attributes(G, sys.maxsize, 'cost') #ustawiam koszt dotarcia do węzła jako inf
+    nx.set_node_attributes(G, None, 'prev') #ustawiam poprzednika na nieistenijącego
+    G.nodes[s]['cost'] = 0 #ustawiam koszt dotarcia do wezła startowego jako 0 i jego poprzednika jako null
+
+def relax(G, prev_node, current_node):
+    if G.nodes[current_node]['cost'] > G.nodes[prev_node]['cost'] + G[prev_node][current_node]['weight']: #jezeli koszt dotarcia do wezla jest wiekszy niz koszt dotarcia do poprzednika + waga krawedzi miedzy nimi
+        G.nodes[current_node]['cost'] = G.nodes[prev_node]['cost'] + G[prev_node][current_node]['weight'] # to ustawiam koszt dotarcia do konkretnego wezla jako suma kosztow
+        G.nodes[current_node]['prev'] = prev_node #ustawiam poprzednika
+
+
+def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G graf, s startowy wezeł
+    for node in G:
+        string = ""
+        print(f"cost from node {s} -> {node} ==> {G.nodes[node]['cost']} Path:  {node}", end = "")
+        while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] is not None:
+            string += f" -> {G.nodes[node]['prev']}"
+            node = G.nodes[node]['prev']
+        print(f"{string}")
+        
+def find_bellman_ford_path(G, s):
+    init(G, s)
+    for node in G.nodes:
+        for edge in G.edges(node):
+            relax(G, edge[0], edge[1])
+    for edge in G.edges():
+        if G.nodes[edge[1]]['cost'] > G.nodes[edge[0]]['cost'] + G[edge[0]][edge[1]]['weight']:
+            return False
+    print_graph_paths(G, s)
+    return True
 
 
