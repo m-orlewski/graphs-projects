@@ -103,7 +103,7 @@ def max_dist_min(g):
     m=min(mat)
     return (mat.index(m)+1,m)
 
-def Minimal_spanning_tree_Prim(g):
+def minimal_spanning_tree_Prim(g):
     g=g.copy()
     n=len(g.nodes)
     print(n)
@@ -121,7 +121,7 @@ def Minimal_spanning_tree_Prim(g):
         node=next_node[1]
     return t
 
-def Minimal_spanning_tree_Kruskal(g):
+def minimal_spanning_tree_Kruskal(g):
     g=g.copy()
     n=len(g.nodes)
     t = nx.Graph()
