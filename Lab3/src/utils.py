@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import networkx as nx
 import random
 from os import path
@@ -57,7 +56,7 @@ def create_graph_from_sequence(sequence):
 
 def init(G, s): 
     nx.set_node_attributes(G, sys.maxsize, 'cost') #ustawiam koszt dotarcia do węzła jako inf
-    nx.set_node_attributes(G, NULL, 'prev') #ustawiam poprzednika na nieistenijącego
+    nx.set_node_attributes(G, None, 'prev') #ustawiam poprzednika na nieistenijącego
     G.nodes[s]['cost'] = 0 #ustawiam koszt dotarcia do wezła startowego jako 0 i jego poprzednika jako null
 
 def relax(G, prev_node, current_node):
@@ -80,7 +79,7 @@ def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G g
     for node in G:
         string = ""
         print(f"cost from node 1 -> {node} ==> {G.nodes[node]['cost']} Path:  {node} -> ", end = "")
-        while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] != NULL:
+        while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] is not None:
            string += f"{G.nodes[node]['prev']} -> "
            node = G.nodes[node]['prev']
         print(f"{string}{s}")
