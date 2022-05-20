@@ -1,5 +1,3 @@
-#from src.digraph import Digraph
-
 def Kosaraj(digraph):
     g = digraph.graph # nie potrzebujemy klasy Digraph, wystarczy nx.DiGraph()
     d = {}

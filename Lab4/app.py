@@ -58,7 +58,7 @@ class App:
     def generate_strongly_connected_digraph(self):
         pass
 
-    def find_distances(self):
+    def find_distances_johnson(self):
         pass
 
 
