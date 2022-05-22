@@ -2,6 +2,7 @@ import networkx as nx
 import random
 from os import path
 import sys
+import matplotlib.pyplot as plt
 
 sys.path.append('.')
 
@@ -76,13 +77,14 @@ def dijkstra(G,s): #G graf, s startowy wezel
     #print_graph_paths(G,s) # do wyświetlania, nic specjalnego
 
 def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G graf, s startowy wezeł
+    string=""
     for node in G:
-        string = ""
-        print(f"cost from node 1 -> {node} ==> {G.nodes[node]['cost']} Path:  {node} -> ", end = "")
+        string+=f"1 -> {node} ==> {G.nodes[node]['cost']} Path:  {node} -> "
         while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] is not None:
            string += f"{G.nodes[node]['prev']} -> "
            node = G.nodes[node]['prev']
-        print(f"{string}{s}")
+        string+=str(s)+'\n'
+    return string
 
 def create_dist_matrix(g):
     dmat=[]
@@ -104,7 +106,6 @@ def max_dist_min(g):
     return (mat.index(m)+1,m)
 
 def minimal_spanning_tree_Prim(g):
-    g=g.copy()
     n=len(g.nodes)
     print(n)
     t = nx.Graph()
@@ -112,6 +113,11 @@ def minimal_spanning_tree_Prim(g):
     t.add_node(node)
     ce=[]
     while len(t.nodes)!=n:
+        print(node)
+        try:
+            print(g.edges(node))
+        except:
+            print(g.edges)
         ce.extend(g.edges(node,data=True))
         next_node=min(ce, key=lambda x: x[2]['weight'])
         ce.remove(next_node)
@@ -122,7 +128,6 @@ def minimal_spanning_tree_Prim(g):
     return t
 
 def minimal_spanning_tree_Kruskal(g):
-    g=g.copy()
     n=len(g.nodes)
     t = nx.Graph()
     while len(t.edges)!=n-1:
@@ -143,13 +148,15 @@ if __name__ == '__main__':
                             (4,7,3), (5,7,1), (5,8,2), (6,8,1), (6,9,2), (7,10,5), (8,10,5),
                             (8,11,6), (8,12,9), (9,11,2), (10,12,5), (11,12,3)])
     
+    
     dijkstra(g,1)
+
 
     #print(create_dist_matrix(g))
     print(sum_dist_min(g))
     print(max_dist_min(g))
-    print(Minimal_spanning_tree_Prim(g).edges())
+    print(minimal_spanning_tree_Prim(g).edges())
     # print(components(g))
-    print(Minimal_spanning_tree_Kruskal(g).edges())
+    print(minimal_spanning_tree_Kruskal(g).edges())
     
     
