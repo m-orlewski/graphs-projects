@@ -135,18 +135,6 @@ def add_s(G): #robi dodatkowy wierzchołek i prowadzi krawędzie do każdego ist
         G_X.add_edge(num_of_nodes, node, weight = 0) #dodaje krawędzie od nowego wierzchołka do każdnego innego noda
     return G_X #zwracam kopie
 
-'''def johnson(G):
-    G_X = add_s(G) #robimy kopie z dodatkowym wierzchołkiem
-    if not find_bellman_ford_path(G_X, len(G_X.nodes())): #sprawdzamy czy zawiera cykl o ujemnej wadze
-        raise ValueError("Graph contains negative cycle")
-    for edge in G_X.edges(): 
-        G_X[edge[0]][edge[1]]['weight'] = G_X[edge[0]][edge[1]]['weight'] + G_X.nodes[edge[0]]['cost'] - G_X.nodes[edge[1]]['cost'] #implementuje algorytm 
-    data = []
-    for node in G.nodes():
-        data.append(dijkstra(G,node)) #dodajemy do macierzy odległosci policzone odleglosci od kazdego noda
-    print(data)
-    return data'''
-
 def johnson(G):
     G_X = add_s(G)
     (result, h) = find_bellman_ford_path(G_X, len(G_X.nodes()))
