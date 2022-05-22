@@ -9,8 +9,11 @@ class Digraph:
     Klasa reprezentująca graf skierowany
     '''
 
-    def __init__(self):
-        self.graph = nx.DiGraph()
+    def __init__(self, from_graph=None):
+        if not from_graph:
+            self.graph = nx.DiGraph()
+        else:
+            self.graph = from_graph
 
     def add_vertex(self, vertex):
         self.graph.add_node(vertex)

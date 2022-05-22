@@ -13,13 +13,13 @@ from src import utils
 matplotlib.use('TkAgg')
 
 class App:
-    def __init__(self):
+    def __init__(self, g=None):
         self.f = Figure(figsize=(10,10), dpi=75)
         self.a = self.f.add_subplot(111)
         self.f.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
         self.a.axis('off')
 
-        self.graph = None
+        self.graph = g
 
         self.window = tk.Tk()
         self.window.title('Grafy - projekt 3')
@@ -77,6 +77,7 @@ class App:
     def dijkstra(self):
         utils.dijkstra(self.graph,1)
         self.result.show_normal(utils.print_graph_paths(self.graph,1))
+        self.draw_graph()
 
     def calculate_distance_matrix(self):
         dmat = utils.create_dist_matrix(self.graph)
@@ -135,4 +136,9 @@ class App:
         self.result.grid(row=1, column=0)
 
 if __name__ == '__main__':
-    app = App()
+    g = nx.Graph()
+    g.add_nodes_from([i for i in range(1, 13)])
+    g.add_weighted_edges_from([(1,2,3), (1,3,2), (1,5,9), (2,4,2), (2,5,4), (3,5,6), (3,6,9),
+                            (4,7,3), (5,7,1), (5,8,2), (6,8,1), (6,9,2), (7,10,5), (8,10,5),
+                            (8,11,6), (8,12,9), (9,11,2), (10,12,5), (11,12,3)])
+    app = App(g=g)

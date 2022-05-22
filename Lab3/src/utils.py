@@ -77,13 +77,21 @@ def dijkstra(G,s): #G graf, s startowy wezel
     #print_graph_paths(G,s) # do wyświetlania, nic specjalnego
 
 def print_graph_paths(G,s): #wyswietla sciezki oraz koszty dotarcia do grafu G graf, s startowy wezeł
-    string=""
+    string = ""
+    p = []
     for node in G:
-        string+=f"1 -> {node} ==> {G.nodes[node]['cost']} Path:  {node} -> "
-        while G.nodes[node]['prev'] != 1 and G.nodes[node]['prev'] is not None:
-           string += f"{G.nodes[node]['prev']} -> "
-           node = G.nodes[node]['prev']
-        string+=str(s)+'\n'
+        n = node
+        string+=f"1 -> {n} ==> {G.nodes[n]['cost']} Path: "
+        p.append(n)
+        while G.nodes[n]['prev'] != 1 and G.nodes[n]['prev'] is not None:
+            p.append(G.nodes[n]['prev'])
+            n = G.nodes[n]['prev']
+        p.append(s)
+        p.reverse()
+        for n in p[:-1]:   
+                string += f"{n}->"
+        string += f"{node}\n"
+        p = []
     return string
 
 def create_dist_matrix(g):
@@ -106,6 +114,7 @@ def max_dist_min(g):
     return (mat.index(m)+1,m)
 
 def minimal_spanning_tree_Prim(g):
+    g=g.copy()
     n=len(g.nodes)
     t = nx.Graph()
     node=1
@@ -125,6 +134,7 @@ def minimal_spanning_tree_Prim(g):
     return t
 
 def minimal_spanning_tree_Kruskal(g):
+    g=g.copy()
     n=len(g.nodes)
     t = nx.Graph()
     while len(t.edges)!=n-1:
