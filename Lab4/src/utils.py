@@ -2,7 +2,6 @@ from src.digraph import Digraph
 import networkx as nx
 import sys
 import copy
-import numpy as np
 import random
 import time
 
@@ -33,26 +32,26 @@ def Kosaraj(g):
 
     gt = g.reverse() # transpozycja grafu g
     nr = 0 # numer spójnej składowej
-    comp = {}
+    comp = {} # key - wierzchołek, value - numer składowej
     for v in gt.nodes():
         comp[v] = -1 # wszystkie wierzchołki nieodwiedzone
 
-    for v in sorted(gt.nodes(), key=lambda x: f[x], reverse=True):
-        if comp[v] == -1:
-            nr += 1
-            comp[v] = nr
-            components_r(nr, v, gt, comp)
+    for v in sorted(gt.nodes(), key=lambda x: f[x], reverse=True): # odwiedzamy wierzchołki w malejącej kolejności przetworzenia
+        if comp[v] == -1: # jeżeli nie przypisano składowej
+            nr += 1 # zwiększamy numer składowej
+            comp[v] = nr # przypisujemy
+            components_r(nr, v, gt, comp) # szukamy sąsiadów (i przypisujemy do tej składowej)
 
     return comp
 
 def kosaraj_visit(g, v, t, d, f):
-    t += 1
-    d[v] = t
-    for u in g.adj[v]:
+    t += 1 # zwiększamy czas
+    d[v] = t # ustawiamy czas dla wierzchołka
+    for u in g.adj[v]: # przechodzimy po krawędziach (v, u)
         if d[u] == -1:
-            t = kosaraj_visit(g, u, t, d, f)
-    t += 1
-    f[v] = t
+            t = kosaraj_visit(g, u, t, d, f) # jeśli u nie odwiedzony to robimy dfs
+    t += 1 # zwiększamy czas
+    f[v] = t # ustawiamy czas przetworzenia wierzchołka
     return t
 
 def components_r(nr, v, gt, comp):
@@ -65,16 +64,16 @@ def generate_strongly_connected_digraph(n, p):
     random.seed(time.time())
     g = generate_digraph(n, p)
 
-    while not is_strongly_connected(Kosaraj(g.graph)):
+    while not is_strongly_connected(Kosaraj(g.graph)): # brute force
         g = generate_digraph(n, p)
     
-    nx.set_edge_attributes(g.graph, {e: {'weight': random.randint(-1, 9)} for e in g.graph.edges})
+    nx.set_edge_attributes(g.graph, {e: {'weight': random.randint(-1, 9)} for e in g.graph.edges}) # dodajemy wagi do krawedzi
     
     return g
 
 def is_strongly_connected(comp):
-    if 2 in comp.values():
-        return False
+    if 2 in comp.values(): # comp.keys() - wierzchołki, comp.values() - numery składowych
+        return False # więcej niż jedna składowa
     return True
 
 def init(G, s): 
@@ -104,11 +103,11 @@ def find_bellman_ford_path(G, s): #zwraca true jeżeli nie ma ujemnych cykli fal
             relax(G, edge[0], edge[1]) #lecimy po każdej krawędzi i liczymy koszta dotarcia do każdego noda
     for edge in G.edges():
         if G.nodes[edge[1]]['cost'] > G.nodes[edge[0]]['cost'] + G[edge[0]][edge[1]]['weight']: #sprawdzam czy nie ma ujemnego cyklu
-            return False
-    print_graph_paths(G, s)
+            return (False, None)
+    #print_graph_paths(G, s)
     h = {}
     for node in G:
-        h[node] = G.nodes[node]['cost']
+        h[node] = G.nodes[node]['cost'] # koszty z s do każdego wierzchołka
     return (True, h)
 
 
@@ -137,19 +136,19 @@ def add_s(G): #robi dodatkowy wierzchołek i prowadzi krawędzie do każdego ist
 
 def johnson(G):
     G_X = add_s(G)
-    (result, h) = find_bellman_ford_path(G_X, len(G_X.nodes()))
+    (result, h) = find_bellman_ford_path(G_X, len(G_X.nodes())) # result == false - jest ujemny cykl, h[v] - długość ścieżki s - > v
     if not result:
         raise ValueError("Graph contains negative cycle")
 
     G_X.remove_node(len(G_X.nodes())) #usuwam dodatkowy wierzchołek
     for u, v in G_X.edges():
-        G_X[u][v]['weight'] = G_X[u][v]['weight'] + h[u] - h[v]
+        G_X[u][v]['weight'] = G_X[u][v]['weight'] + h[u] - h[v] # przeliczamy wagi używając usuniętego wierzchołka
     
-    D = []
+    D = [] # na wyniki Dijkstry
     for u in G.nodes():
         D.append(dijkstra(G_X,u)) #dodajemy do macierzy odległosci policzone odleglosci od kazdego noda
         for v in G.nodes():
-            D[u-1][v-1] = D[u-1][v-1] - h[u] + h[v]
-    print(D)
+            D[u-1][v-1] = D[u-1][v-1] - h[u] + h[v] # usuwamy wagi wynikające z dodania wierzchołka s
+    
     return D
 

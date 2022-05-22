@@ -1,10 +1,5 @@
 import networkx as nx
 import random
-from os import path
-import sys
-import matplotlib.pyplot as plt
-
-sys.path.append('.')
 
 from Lab2.src.utils import components
 
@@ -106,42 +101,42 @@ def create_dist_matrix(g):
 def sum_dist_min(g):
     mat=[sum(x) for x in create_dist_matrix(g)]
     m=min(mat)
-    return (mat.index(m)+1,m)
+    return (mat.index(m)+1,m) # centrum, najmniejsza sumaryczna odleglosc do wszystkich pozostalych wierzcholkow
 
 def max_dist_min(g):
     mat=[max(x) for x in create_dist_matrix(g)]
     m=min(mat)
-    return (mat.index(m)+1,m)
+    return (mat.index(m)+1,m) # centrum minimax - najmniejsza odl od najdlaszego wierzchołka
 
 def minimal_spanning_tree_Prim(g):
     g=g.copy()
     n=len(g.nodes)
     t = nx.Graph()
-    node=1
+    node=1 # startowy wierzchołek
     t.add_node(node)
     ce=[]
-    while len(t.nodes)!=n:
+    while len(t.nodes)!=n: # dopóki drzewo nie jest zbudowane
         try:
-            ce.extend(g.edges(node,data=True))
+            ce.extend(g.edges(node,data=True)) # dodajemy krawędzie z node do drzewa
         except:
-            pass
-        next_node=min(ce, key=lambda x: x[2]['weight'])
-        ce.remove(next_node)
-        t.add_edge(*next_node[:2],weight=next_node[2]['weight'])
+            raise Exception("Error")
+        next_node=min(ce, key=lambda x: x[2]['weight']) # wybieramy krawędź lekką
+        ce.remove(next_node) # usuwamy krawędź z ce
+        t.add_edge(*next_node[:2],weight=next_node[2]['weight']) # i dodajemy ją do drzewa
         g.remove_node(node)
-        node=next_node[1]
-        ce=list(filter(lambda x: x[1]!=node, ce))
+        node=next_node[1] # wybieramy kolejną krawędź
+        ce=list(filter(lambda x: x[1]!=node, ce)) # aktualizujemy zbiór ce (usuwamy z niego node)
     return t
 
 def minimal_spanning_tree_Kruskal(g):
     g=g.copy()
     n=len(g.nodes)
     t = nx.Graph()
-    while len(t.edges)!=n-1:
-        edge=min(g.edges(data=True), key=lambda x: x[2]['weight'])
-        g.remove_edge(*edge[:2])
-        if edge[0] not in t or edge[1] not in t or components(t)[edge[0]] != components(t)[edge[1]]:
-            t.add_edge(*edge[:2],weight=edge[2]['weight'])
+    while len(t.edges)!=n-1: # waruenk końca
+        edge=min(g.edges(data=True), key=lambda x: x[2]['weight']) # krawędź o najmniejszej wadze
+        g.remove_edge(*edge[:2]) # usuwamy krawędź z grafu
+        if edge[0] not in t or edge[1] not in t or components(t)[edge[0]] != components(t)[edge[1]]: # jeśli krawędź nie jest w drzewie lub jest w drzewie ale nie jest w tym samym składzie
+            t.add_edge(*edge[:2],weight=edge[2]['weight']) # dodajemy do drzewa
     return t
 
 
