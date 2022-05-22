@@ -14,7 +14,7 @@ matplotlib.use('TkAgg')
 
 class App:
     def __init__(self):
-        self.f = Figure(figsize=(4,4), dpi=100)
+        self.f = Figure(figsize=(10,10), dpi=75)
         self.a = self.f.add_subplot(111)
         self.f.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
         self.a.axis('off')
@@ -23,13 +23,13 @@ class App:
 
         self.window = tk.Tk()
         self.window.title('Grafy - projekt 3')
-        self.window.geometry('1280x720')
+        self.window.geometry('1600x900')
 
         self.window.grid_columnconfigure(0, weight=0)
         self.window.grid_columnconfigure(1, weight=0)
         self.window.grid_columnconfigure(2, weight=2)
         self.window.grid_columnconfigure(3, weight=0)
-        self.window.grid_columnconfigure(4, weight=2)
+        self.window.grid_columnconfigure(4, weight=4)
 
         self.window.grid_rowconfigure(0, weight=1)
 
