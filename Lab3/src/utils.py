@@ -1,7 +1,7 @@
 import networkx as nx
 import random
+import sys
 
-from Lab2.src.utils import components
 
 def check_sequence(sequence):
     '''Sprawdza czy podana sekwencja jest ciągiem graficznym'''
@@ -139,7 +139,24 @@ def minimal_spanning_tree_Kruskal(g):
             t.add_edge(*edge[:2],weight=edge[2]['weight']) # dodajemy do drzewa
     return t
 
+def components_R(nr, node, g, comp):
+    for nbr in g[node]: #Przeglądam wszystkich sąsiadów danego węzła
+        if comp[nbr] == -1: #jeżeli sąsiad nie był odwiedzony przypisuje mu wartość odpowiedniej grupy
+            comp[nbr] = nr
+            components_R(nr, nbr, g, comp) #przeszkuję w głąb sąsiadów sąsiada
 
+def components(g):
+    nr = 0
+    comp = {} #Tworze słownik key: idex węzła value: grupa do której przynależy
+    for node in g:
+        comp[node] = -1 #Zgodnie z algorytmem przypisuje każdemu kluczowi wartość -1
+    for node in g:
+        if comp[node] == -1: #sprawdzam czy węzeł był odwiedzony -1 -> nie był każda inna był
+            nr = nr+1 #nowa grupa
+            comp[node] = nr #przypisuje do noda do której grupy przynależy
+            components_R(nr, node, g, comp) #Przeszukiwanie w głab po każdym sąsiedzie węzła 
+                                    #  nr -> numer grupy, node -> aktualny węzeł, g->Oryginalny graf, comp->słownik z przynależnością
+    return comp
 
 if __name__ == '__main__':
     print(check_sequence([4,2,2,3,2,1,4,2,2,2,2]))
