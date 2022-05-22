@@ -50,7 +50,13 @@ class App:
         self.window.mainloop()
 
     def generate_digraph(self):
-        pass
+        n = int(self.n.get())
+        p = float(self.p.get())
+        if n > 0 and p >= 0.0 and p <= 1.0:
+            self.graph = utils.generate_digraph(n, p)
+            #print(self.graph.to_adj_list())
+        else:
+            pass # komunikat
 
     def find_strongly_connected_components(self):
         pass
@@ -63,9 +69,10 @@ class App:
 
 
 if __name__ == '__main__':
-    #app = App()
-    g = Digraph()
+    app = App()
+    #g = Digraph()
     
+    '''
     g.add_vertices([1,2,3,4,5,6,7]) # przykład silnie spójnego grafu
     g.add_edge(1, 2, weight = 6)
     g.add_edge(1, 3, weight = 3)
@@ -82,6 +89,7 @@ if __name__ == '__main__':
     g.add_edge(6, 2, weight = 9)
     g.add_edge(7, 6, weight = 4)
     print(utils.find_bellman_ford_path(g.graph, 1))
+    '''
     
 
 

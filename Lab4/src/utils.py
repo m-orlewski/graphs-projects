@@ -1,6 +1,19 @@
 from src.digraph import Digraph
 import networkx as nx
 import sys
+import random
+
+def generate_digraph(n, p):
+    g = Digraph()
+    g.add_vertices([_ for _ in range(1, n+1)])
+
+    for vertex1 in g.get_vertices():
+        for vertex2 in g.get_vertices():
+            if vertex1 != vertex2 and random.uniform(0.0, 1.0) < p:
+                g.add_edge(vertex1, vertex2)
+
+    return g
+    
 
 def Kosaraj(digraph):
     g = digraph.graph # nie potrzebujemy klasy Digraph, wystarczy nx.DiGraph()
