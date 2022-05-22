@@ -96,7 +96,7 @@ class App:
         self.draw_graph()
     
     def minimum_spanning_tree_Kruskal(self):
-        self.graph=utils.minimal_spanning_tree_Prim(self.graph)
+        self.graph=utils.minimal_spanning_tree_Kruskal(self.graph)
         self.draw_graph()
 
     def draw_graph(self):

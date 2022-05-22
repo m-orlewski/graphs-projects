@@ -107,24 +107,21 @@ def max_dist_min(g):
 
 def minimal_spanning_tree_Prim(g):
     n=len(g.nodes)
-    print(n)
     t = nx.Graph()
     node=1
     t.add_node(node)
     ce=[]
     while len(t.nodes)!=n:
-        print(node)
         try:
-            print(g.edges(node))
+            ce.extend(g.edges(node,data=True))
         except:
-            print(g.edges)
-        ce.extend(g.edges(node,data=True))
+            pass
         next_node=min(ce, key=lambda x: x[2]['weight'])
         ce.remove(next_node)
-        ce=list(filter(lambda x: x[1]!=node, ce))
         t.add_edge(*next_node[:2],weight=next_node[2]['weight'])
         g.remove_node(node)
         node=next_node[1]
+        ce=list(filter(lambda x: x[1]!=node, ce))
     return t
 
 def minimal_spanning_tree_Kruskal(g):
