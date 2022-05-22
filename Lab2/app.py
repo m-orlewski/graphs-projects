@@ -68,6 +68,12 @@ class App:
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
 
+        ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
+        ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
+
+        ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
+        ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
+
         self.window.mainloop()
 
     def check_sequence(self):
