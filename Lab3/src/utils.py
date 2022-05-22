@@ -148,8 +148,8 @@ if __name__ == '__main__':
     #print(create_dist_matrix(g))
     print(sum_dist_min(g))
     print(max_dist_min(g))
-    print(Minimal_spanning_tree_Prim(g).edges())
+    print(minimal_spanning_tree_Prim(g).edges())
     # print(components(g))
-    print(Minimal_spanning_tree_Kruskal(g).edges())
+    print(minimal_spanning_tree_Kruskal(g).edges())
     
     

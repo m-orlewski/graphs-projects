@@ -4,6 +4,7 @@ import sys
 import copy
 import numpy as np
 import random
+import time
 
 def generate_digraph(n, p):
     g = Digraph()
@@ -17,8 +18,7 @@ def generate_digraph(n, p):
     return g
     
 
-def Kosaraj(digraph):
-    g = digraph.graph # nie potrzebujemy klasy Digraph, wystarczy nx.DiGraph()
+def Kosaraj(g):
     d = {}
     f = {}
     
@@ -61,6 +61,21 @@ def components_r(nr, v, gt, comp):
             comp[u] = nr
             components_r(nr, u, gt, comp)
 
+def generate_strongly_connected_digraph(n, p):
+    random.seed(time.time())
+    g = generate_digraph(n, p)
+
+    while not is_strongly_connected(Kosaraj(g.graph)):
+        g = generate_digraph(n, p)
+    
+    nx.set_edge_attributes(g.graph, {e: {'weight': random.randint(-1, 9)} for e in g.graph.edges})
+    
+    return g
+
+def is_strongly_connected(comp):
+    if 2 in comp.values():
+        return False
+    return True
 
 def init(G, s): 
     nx.set_node_attributes(G, sys.maxsize, 'cost') #ustawiam koszt dotarcia do węzła jako inf
