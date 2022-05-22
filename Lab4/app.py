@@ -1,6 +1,7 @@
+from msilib.schema import Error
 import tkinter as tk
 from tkinter import ttk, filedialog
-
+import copy
 from src import utils
 from src.digraph import Digraph
 
@@ -90,7 +91,16 @@ if __name__ == '__main__':
     g.add_edge(7, 6, weight = 4)
     print(utils.find_bellman_ford_path(g.graph, 1))
     '''
-    
+
+    #print(g.graph.out_edges())
+    #print(g.graph.edges())
+    '''
+    for node in g.graph.nodes():   
+        print(utils.find_bellman_ford_path(copy.deepcopy(g.graph), node))
+    data = utils.johnson(g.graph)
+    for row in data:
+        print(row)
+    '''    
 
 
 
