@@ -84,10 +84,13 @@ class App:
     def generate_strongly_connected_digraph(self):
         n = int(self.n.get())
         p = float(self.p.get())
-        digraph = generate_strongly_connected_digraph(n,p)
-        self.graph = digraph.graph
-        self.draw_graph()
-        self.result.show_normal(str(digraph.to_adj_list()))
+        if n>0 and p>0 and p<1:
+            digraph = generate_strongly_connected_digraph(n,p)
+            self.graph = digraph.graph
+            self.draw_graph()
+            self.result.show_normal(str(digraph.to_adj_list()))
+        else:
+            self.result.show_normal("Bledne parametry!")
 
 
     def find_distances_johnson(self):
