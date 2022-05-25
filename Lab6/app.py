@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import networkx as nx
 from tools.tkinter import InfoLabel
+from src.digraph import Digraph
 
 class App:
     def __init__(self, g=None):
@@ -61,15 +62,19 @@ class App:
         n = int(self.n.get())
         p = float(self.p.get())
         if n > 0 and p >= 0.0 and p <= 1.0:
+
             self.graph = utils.generate_digraph(n, p).graph
             adj_list = Digraph(from_graph=self.graph).to_adj_list()
+            while min(adj_list.representation.values(), key=len)==[]:
+                self.graph = utils.generate_digraph(n, p).graph
+                adj_list = Digraph(from_graph=self.graph).to_adj_list()
             self.result.show_normal(str(adj_list))
             self.draw_graph()
         else:
             self.result.show_normal("Bledne parametry")
 
     def page_rank_a(self):
-        pass
+        print(utils.page_rank_a(self.graph))
 
     def page_rank_b(self):
         pass
@@ -86,11 +91,8 @@ class App:
             'arrowstyle': '-|>',
             'arrowsize': 15,
         }
-        edge_labels=dict([((u,v,),d['weight'])
-                    for u,v,d in self.graph.edges(data=True)])
         pos = nx.spring_layout(self.graph)
         nx.draw_networkx(self.graph, pos, arrows=isinstance(self.graph, nx.DiGraph), **options, ax=self.a)
-        nx.draw_networkx_edge_labels(self.graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
         self.canvas.draw()
         
     def add_canvas(self, row, column):
@@ -113,4 +115,21 @@ class App:
         self.result.grid(row=1, column=0)
 
 if __name__ == '__main__':
-    app = App()
+    g = Digraph()
+    g.add_vertices([1,2,3,4,5,6,7])
+    g.add_edge(1, 2)
+    g.add_edge(1, 3)
+    g.add_edge(1, 5)
+    g.add_edge(2, 1)
+    g.add_edge(2, 3)
+    g.add_edge(2, 4)
+    g.add_edge(2, 5)
+    g.add_edge(2, 7)
+    g.add_edge(3, 6)
+    g.add_edge(4, 2)
+    g.add_edge(4, 7)
+    g.add_edge(5, 74)
+    g.add_edge(6, 2)
+    g.add_edge(7, 6)
+
+    app = App(g)
