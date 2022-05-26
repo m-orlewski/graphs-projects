@@ -1,5 +1,5 @@
 import networkx as nx
-import random
+import random, time
 
 class FlowNetwork:
     def __init__(self, N):
@@ -23,6 +23,7 @@ class FlowNetwork:
 
         # Krawędzie z wierzchołka 's'
         for node in self.get_nodes_from_layer(1):
+            print(f's -> {node}')
             self.add_edge('s', node, random.randint(1, 10))
 
         # Krawędzie z wierzchołków warstw (1, N-1)
@@ -34,16 +35,19 @@ class FlowNetwork:
                 neighbors = random.sample(next_layer_nodes, random.randint(1, len(next_layer_nodes)))
                 for node2 in neighbors:
                     # z każdego wierzchołka warstwy i wychodzi co najmniej 1 krawędź do warstwy i+1
+                    print(f'{node1} -> {node2}')
                     self.add_edge(node1, node2, random.randint(1, 10))
 
             for node2 in next_layer_nodes:
                 # do każdego wierzchołka warstwy i+1 wchodzi co najmniej 1 krawędź z warstwy i
                 if self.graph.in_degree(node2) == 0:
                     node1 = random.choice(current_layer_nodes)
+                    print(f'{node1} -> {node2}')
                     self.add_edge(node1, node2, random.randint(1, 10))
 
         # Krawędzie do wierzchołka 't'
         for node in self.get_nodes_from_layer(N):
+            print(f'{node} -> t')
             self.add_edge(node, 't', random.randint(1, 10))
 
         # Dodatkowe 2N krawędzi
@@ -55,7 +59,7 @@ class FlowNetwork:
             node1 = random.choice(start_nodes)
             node2 = random.choice(end_nodes)
 
-            while node1 == node2 or self.graph.has_edge(node1, node2):
+            while node1 == node2 or self.graph.has_edge(node1, node2) or self.graph.has_edge(node2, node1):
                 node1 = random.choice(start_nodes)
                 node2 = random.choice(end_nodes)
 
@@ -66,12 +70,22 @@ class FlowNetwork:
         self.graph.add_node(node, layer=layer)
 
     def add_edge(self, node1, node2, capacity):
-        self.graph.add_edge(node1, node2, capacity=capacity)
+        self.graph.add_edge(node1, node2, capacity=capacity, flow=0)
 
     def get_nodes_from_layer(self, layer):
         return [node for node in self.graph.nodes() if self.graph.nodes[node]['layer'] == layer]
 
+    def __str__(self):
+        result = 'Node(layer) : neighbor(flow/capacity)\n'
+        for node in self.graph.nodes():
+            result += f'{node}({self.graph.nodes[node]["layer"]}) : '
+            for neighbor in self.graph.neighbors(node):
+                result += f'{neighbor}({self.graph.edges[node, neighbor]["flow"]}/{self.graph.edges[node, neighbor]["capacity"]}), '
+
+            result = result[:-2] + '\n'
+
+        return result
+
 if __name__ == '__main__':
-    f = FlowNetwork(3)
-    print(f.graph.nodes())
-    print(f.graph.edges())
+    random.seed(time.time())
+    f = FlowNetwork(2)

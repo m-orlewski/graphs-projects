@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from src import utils
+from src.flow_network import FlowNetwork
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import networkx as nx
@@ -48,7 +49,15 @@ class App:
         self.window.mainloop()
 
     def generate_flow_network(self):
-        pass
+        N = int(self.N.get())
+
+        if N >= 2:
+            self.flow_network = FlowNetwork(N)
+            self.graph = self.flow_network.graph
+            self.draw_graph()
+            self.result.show_normal(self.flow_network)
+        else:
+            self.result.show_normal("Błędne parametry")
 
     def ford_fulkerson(self):
         pass
@@ -63,8 +72,8 @@ class App:
             'arrowstyle': '-|>',
             'arrowsize': 15,
         }
-        edge_labels=dict([((u,v,),d['weight'])
-                    for u,v,d in self.graph.edges(data=True)])
+        edge_labels=dict([((u,v,),f"{d['flow']}/{d['capacity']}") for u,v,d in self.graph.edges(data=True)])
+        print(edge_labels)
         pos = nx.spring_layout(self.graph)
         nx.draw_networkx(self.graph, pos, arrows=isinstance(self.graph, nx.DiGraph), **options, ax=self.a)
         nx.draw_networkx_edge_labels(self.graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
