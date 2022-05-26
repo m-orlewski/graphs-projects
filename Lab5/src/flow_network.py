@@ -1,8 +1,6 @@
 import networkx as nx
 import random, time
 
-from pyparsing import conditionAsParseAction
-
 class FlowNetwork:
     def __init__(self, N):
         self.N = N
@@ -25,7 +23,7 @@ class FlowNetwork:
 
         # Krawędzie z wierzchołka 's'
         for node in self.get_nodes_from_layer(1):
-            print(f's -> {node}')
+            #print(f's -> {node}')
             self.add_edge('s', node, random.randint(1, 10))
 
         # Krawędzie z wierzchołków warstw (1, N-1)
@@ -37,19 +35,19 @@ class FlowNetwork:
                 neighbors = random.sample(next_layer_nodes, random.randint(1, len(next_layer_nodes)))
                 for node2 in neighbors:
                     # z każdego wierzchołka warstwy i wychodzi co najmniej 1 krawędź do warstwy i+1
-                    print(f'{node1} -> {node2}')
+                    #print(f'{node1} -> {node2}')
                     self.add_edge(node1, node2, random.randint(1, 10))
 
             for node2 in next_layer_nodes:
                 # do każdego wierzchołka warstwy i+1 wchodzi co najmniej 1 krawędź z warstwy i
                 if self.graph.in_degree(node2) == 0:
                     node1 = random.choice(current_layer_nodes)
-                    print(f'{node1} -> {node2}')
+                    #print(f'{node1} -> {node2}')
                     self.add_edge(node1, node2, random.randint(1, 10))
 
         # Krawędzie do wierzchołka 't'
         for node in self.get_nodes_from_layer(N):
-            print(f'{node} -> t')
+            #print(f'{node} -> t')
             self.add_edge(node, 't', random.randint(1, 10))
 
         # Dodatkowe 2N krawędzi
@@ -67,7 +65,14 @@ class FlowNetwork:
 
             self.add_edge(node1, node2, random.randint(1, 10))
 
-        self.create_residual_graph() # Tworzymy sieć rezydualną
+        self.graph = self.create_test_graph()
+        
+        for u, v, data in self.graph.edges(data=True):
+            self.graph.add_edge(v, u, capacity=data['capacity'], flow=0, reverse=True)
+
+        for u, v in self.graph.edges():
+            print(f'{u} -> {v}')
+
 
     def create_residual_graph(self):
         self.residual_graph = nx.DiGraph()
@@ -78,8 +83,7 @@ class FlowNetwork:
             flow = data['flow']
             capacity = data['capacity']
 
-            self.residual_graph.add_edge(node1, node2, capacity=capacity-flow)
-            self.residual_graph.add_edge(node2, node1, capacity=flow)
+            self.residual_graph.add_edge(node2, node1, capacity=capacity-flow, flow=0)
 
 
     def add_node(self, node, layer):
@@ -101,7 +105,111 @@ class FlowNetwork:
             result = result[:-2] + '\n'
 
         return result
+    
+    def ford_fulkerson(self):
+        flow = 0
+        while True:
+            path = self.bts('s', 't')
+            if path is None:
+                break
+
+            u, v = path[0][0], path[0][1]
+            cf = self.graph.edges[u, v]['capacity'] - self.graph.edges[u, v]['flow']
+            for u, v in path:
+                cf = min(cf, self.graph.edges[u, v]['capacity'] - self.graph.edges[u, v]['flow'])
+
+            for u, v in path:
+                self.graph.edges[u, v]['flow'] += cf
+                self.graph.edges[v, u]['flow'] -= cf
+
+            input()
+            flow += cf
+
+        return flow
+
+    def bts(self, s, t):
+        d, p = {}, {}
+        for v in self.graph.nodes():
+            d[v] = float('inf')
+            p[v] = None
+
+        d[s] = 0
+        q = [s]
+
+        while q:
+            v = q.pop(0)
+            for u in self.graph.neighbors(v):
+                if d[u] == float('inf') and self.graph.edges[v, u]['flow'] < self.graph.edges[v, u]['capacity']:
+                    print(f"If passed ({v}, {u}): {self.graph.edges[v, u]['flow']} < {self.graph.edges[v, u]['capacity']}")
+                    d[u] = d[v] + 1
+                    p[u] = v
+                    q.append(u)
+
+                    if u == t:
+                        return self.get_path(p, s, t)
+        return None
+
+    def get_path(self, p, s, t):
+        path = []
+        while t != s:
+            path.append((p[t], t))
+            t = p[t]
+        path.append((p[t], t))
+        path = path[::-1]
+        path = path[1::]
+        return path 
+            
+
+    def create_test_graph(self):
+        graph = nx.DiGraph()
+        graph.add_node('s', layer = 0)
+
+        graph.add_node('a', layer = 1)
+        graph.add_node('b', layer = 1)
+        graph.add_node('c', layer = 1)
+
+        graph.add_node('d', layer = 2)
+        graph.add_node('e', layer = 2)
+        graph.add_node('f', layer = 2)
+
+        graph.add_node('g', layer = 3)
+        graph.add_node('h', layer = 3)
+        graph.add_node('i', layer = 3)
+
+        graph.add_node('t', layer = 4)
+        #S -> 
+        graph.add_edge('s', 'a', capacity = 10, flow = 0, reverse=False)
+        graph.add_edge('s', 'b', capacity = 3, flow = 0, reverse=False)
+        graph.add_edge('s', 'c', capacity = 6, flow = 0, reverse=False)
+        #A -> 
+        graph.add_edge('a', 'b', capacity = 8, flow = 0, reverse=False)
+        graph.add_edge('a', 'd', capacity = 8, flow = 0, reverse=False)
+        graph.add_edge('a', 'e', capacity = 6, flow = 0, reverse=False)
+        #B ->
+        graph.add_edge('b', 'e', capacity = 2, flow = 0, reverse=False)
+        graph.add_edge('b', 'f', capacity = 10, flow = 0, reverse=False)
+        #C -> 
+        graph.add_edge('c', 'd', capacity = 10, flow = 0, reverse=False)
+        graph.add_edge('c', 'f', capacity = 1, flow = 0, reverse=False)
+        #D ->
+        graph.add_edge('d', 'h', capacity = 5, flow = 0, reverse=False)
+        #E ->
+        graph.add_edge('e', 'i', capacity = 7, flow = 0, reverse=False)
+        #F ->
+        graph.add_edge('f', 'g', capacity = 10, flow = 0, reverse=False)
+        #G -> 
+        graph.add_edge('g', 't', capacity = 7, flow = 0, reverse=False)
+        #H -> 
+        graph.add_edge('h', 'g', capacity = 1, flow = 0, reverse=False)
+        graph.add_edge('h', 't', capacity = 5, flow = 0, reverse=False)
+        graph.add_edge('h', 'f', capacity = 8, flow = 0, reverse=False)
+        #I ->
+        graph.add_edge('i', 't', capacity = 7, flow = 0, reverse=False)
+
+        return graph
+
 
 if __name__ == '__main__':
     random.seed(time.time())
-    f = FlowNetwork(2)
+    f = FlowNetwork(3)
+    print(f.ford_fulkerson())
