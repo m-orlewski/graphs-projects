@@ -1,6 +1,8 @@
 import networkx as nx
 import random, time
 
+from pyparsing import conditionAsParseAction
+
 class FlowNetwork:
     def __init__(self, N):
         self.N = N
@@ -64,6 +66,20 @@ class FlowNetwork:
                 node2 = random.choice(end_nodes)
 
             self.add_edge(node1, node2, random.randint(1, 10))
+
+        self.create_residual_graph() # Tworzymy sieć rezydualną
+
+    def create_residual_graph(self):
+        self.residual_graph = nx.DiGraph()
+        for node in self.graph.nodes():
+            self.residual_graph.add_node(node, layer=self.graph.nodes[node]['layer'])
+
+        for node1, node2, data in self.graph.edges(data=True):
+            flow = data['flow']
+            capacity = data['capacity']
+
+            self.residual_graph.add_edge(node1, node2, capacity=capacity-flow)
+            self.residual_graph.add_edge(node2, node1, capacity=flow)
 
 
     def add_node(self, node, layer):
