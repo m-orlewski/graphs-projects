@@ -55,7 +55,9 @@ class App:
 
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
-        
+        self.draw_graph()
+        self.result.show_normal(str(Digraph(from_graph=self.graph).to_adj_list()))
+        self.d=0.15
         self.window.mainloop()
 
     def generate_digraph(self):
@@ -74,10 +76,16 @@ class App:
             self.result.show_normal("Bledne parametry")
 
     def page_rank_a(self):
-        print(utils.page_rank_a(self.graph))
+        s=''
+        for el in utils.page_rank_a(self.graph,self.d):
+            s+=str(el[0])+" ==> "+str(el[1])+"\n"
+        self.result.show_normal(s)
 
     def page_rank_b(self):
-        pass
+        s=""
+        for el in utils.page_rank_b(self.graph,self.d):
+            s+=str(el[0])+" ==> "+str(el[1])+"\n"
+        self.result.show_normal(s)
 
     def burn_in_method(self):
         pass
@@ -116,20 +124,8 @@ class App:
 
 if __name__ == '__main__':
     g = Digraph()
-    g.add_vertices([1,2,3,4,5,6,7])
-    g.add_edge(1, 2)
-    g.add_edge(1, 3)
-    g.add_edge(1, 5)
-    g.add_edge(2, 1)
-    g.add_edge(2, 3)
-    g.add_edge(2, 4)
-    g.add_edge(2, 5)
-    g.add_edge(2, 7)
-    g.add_edge(3, 6)
-    g.add_edge(4, 2)
-    g.add_edge(4, 7)
-    g.add_edge(5, 74)
-    g.add_edge(6, 2)
-    g.add_edge(7, 6)
+    g.add_vertices(range(1,13))
+    for i in [(1,5),(1,6),(1,9),(2,1),(2,3),(2,6),(3,2),(3,4),(3,5),(3,12),(4,3),(4,5),(4,8),(4,9),(4,11),(5,3),(5,7),(5,8),(5,9),(6,2),(6,7),(7,5),(7,6),(7,8),(8,4),(8,7),(8,9),(8,12),(9,4),(9,5),(9,8),(9,10),(10,9),(11,4),(11,9),(12,1),(12,8)]:
+        g.add_edge(i[0],i[1])
 
-    app = App(g)
+    app = App(g.graph)
