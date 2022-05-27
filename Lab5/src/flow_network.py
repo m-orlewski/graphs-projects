@@ -1,5 +1,6 @@
 import networkx as nx
 import random, time
+import sys
 
 from pyparsing import conditionAsParseAction
 
@@ -66,8 +67,10 @@ class FlowNetwork:
                 node2 = random.choice(end_nodes)
 
             self.add_edge(node1, node2, random.randint(1, 10))
-
+        self.graph = self.create_test_graph()
         self.create_residual_graph() # Tworzymy sieć rezydualną
+        print(self.ford_fulkerson('s', 't'))
+
 
     def create_residual_graph(self):
         self.residual_graph = nx.DiGraph()
@@ -80,6 +83,55 @@ class FlowNetwork:
 
             self.residual_graph.add_edge(node1, node2, capacity=capacity-flow)
             self.residual_graph.add_edge(node2, node1, capacity=flow)
+
+    def create_test_graph(self):
+        graph = nx.DiGraph()
+        graph.add_node('s', layer = 0)
+
+        graph.add_node('a', layer = 1)
+        graph.add_node('b', layer = 1)
+        graph.add_node('c', layer = 1)
+
+        graph.add_node('d', layer = 2)
+        graph.add_node('e', layer = 2)
+        graph.add_node('f', layer = 2)
+
+        graph.add_node('g', layer = 3)
+        graph.add_node('h', layer = 3)
+        graph.add_node('i', layer = 3)
+
+        graph.add_node('t', layer = 4)
+        #S -> 
+        graph.add_edge('s', 'a', capacity = 10, flow = 0)
+        graph.add_edge('s', 'b', capacity = 3, flow = 0)
+        graph.add_edge('s', 'c', capacity = 6, flow = 0)
+        #A -> 
+        graph.add_edge('a', 'b', capacity = 8, flow = 0)
+        graph.add_edge('a', 'd', capacity = 8, flow = 0)
+        graph.add_edge('a', 'e', capacity = 6, flow = 0)
+        #B ->
+        graph.add_edge('b', 'e', capacity = 2, flow = 0)
+        graph.add_edge('b', 'f', capacity = 10, flow = 0)
+        #C -> 
+        graph.add_edge('c', 'd', capacity = 10, flow = 0)
+        graph.add_edge('c', 'f', capacity = 1, flow = 0)
+        #D ->
+        graph.add_edge('d', 'h', capacity = 5, flow = 0)
+        #E ->
+        graph.add_edge('e', 'i', capacity = 7, flow = 0)
+        #F ->
+        graph.add_edge('f', 'g', capacity = 10, flow = 0)
+        #G -> 
+        graph.add_edge('g', 't', capacity = 7, flow = 0)
+        #H -> 
+        graph.add_edge('h', 'g', capacity = 1, flow = 0)
+        graph.add_edge('h', 't', capacity = 5, flow = 0)
+        graph.add_edge('h', 'f', capacity = 8, flow = 0)
+        #I ->
+        graph.add_edge('i', 't', capacity = 7, flow = 0)
+        for u, v, data in graph.edges(data=True):
+            graph.add_edge(v, u, capacity=data['capacity'], flow=0, reverse=True)
+        return graph
 
 
     def add_node(self, node, layer):
@@ -101,6 +153,44 @@ class FlowNetwork:
             result = result[:-2] + '\n'
 
         return result
+
+    def BFS(self, G, start, end):
+        nx.set_node_attributes(G, sys.maxsize, 'cost') 
+        nx.set_node_attributes(G, None, 'prev')
+        G.nodes[start]['cost'] = 0 
+        Q = []
+        Q.append(start)
+        while Q:
+            v = Q.pop(0)
+            for u in self.graph.neighbors(v):
+                if G.nodes[u]['cost'] == sys.maxsize and G[v][u]['capacity'] - G[v][u]['flow'] > 0:
+                    G.nodes[u]['cost'] = G.nodes[u]['cost'] + 1
+                    G.nodes[u]['prev'] = v
+                    Q.append(u)
+                    if u == end:
+                        return True
+        return False
+
+    def ford_fulkerson(self, start, end):
+        max_flow = 0
+        while self.BFS(self.graph, start, end):
+            path_flow = float('inf')
+            v = end
+            while v != start:
+                u = self.graph.nodes[v]['prev']
+                path_flow = min(path_flow, self.graph[u][v]['capacity'] - self.graph[u][v]['flow'])
+                v = self.graph.nodes[v]['prev']
+            max_flow += path_flow
+
+            v = end
+            while v != start:
+                u = self.graph.nodes[v]['prev']
+                self.graph[u][v]['flow'] += path_flow
+                self.graph[v][u]['flow'] -= path_flow
+                v = self.graph.nodes[v]['prev']
+
+        return max_flow
+
 
 if __name__ == '__main__':
     random.seed(time.time())

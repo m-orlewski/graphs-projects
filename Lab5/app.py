@@ -99,4 +99,7 @@ class App:
         self.result.grid(row=1, column=0)
 
 if __name__ == '__main__':
-    app = App()
+    #app = App()
+    FN = FlowNetwork(2)
+    print(FN)
+
