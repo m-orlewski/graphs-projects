@@ -106,28 +106,28 @@ class FlowNetwork:
     def ford_fulkerson(self):
         flow = 0
         while True:
-            path = self.bfs('s', 't')
+            path = self.bfs('s', 't') # najkrótsza ścieżka z 's' do 't'
             if path is None:
                 break
 
             u, v = path[0][0], path[0][1]
             cf = self.graph.edges[u, v]['capacity'] - self.graph.edges[u, v]['flow']
             for u, v in path:
-                cf = min(cf, self.graph.edges[u, v]['capacity'] - self.graph.edges[u, v]['flow'])
+                cf = min(cf, self.graph.edges[u, v]['capacity'] - self.graph.edges[u, v]['flow']) # szukami największej możliwej przepustowości ścieżki path
 
             for u, v in path:
-                self.graph.edges[u, v]['flow'] += cf
-                self.graph.edges[v, u]['flow'] -= cf
+                self.graph.edges[u, v]['flow'] += cf # dodajemy przepływ na krawędziach z path
+                self.graph.edges[v, u]['flow'] -= cf # i kasujemy go na krawędziach odwrotnych
 
-            flow += cf
+            flow += cf # dodajemy przepływ na całej ścieżce
 
         return flow
 
     def bfs(self, s, t):
         d, p = {}, {}
         for v in self.graph.nodes():
-            d[v] = float('inf')
-            p[v] = None
+            d[v] = float('inf') # oznaczamy nieodwiedzone wierzchołki
+            p[v] = None # i poprzedników
 
         d[s] = 0
         q = [s]
@@ -135,17 +135,17 @@ class FlowNetwork:
         while q:
             v = q.pop(0)
             for u in self.graph.neighbors(v):
-                if d[u] == float('inf') and self.graph.edges[v, u]['flow'] < self.graph.edges[v, u]['capacity']:
-                    print(f"If passed ({v}, {u}): {self.graph.edges[v, u]['flow']} < {self.graph.edges[v, u]['capacity']}")
+                if d[u] == float('inf') and self.graph.edges[v, u]['flow'] < self.graph.edges[v, u]['capacity']: # jeśli nieodwiedzony i niepełny przepływ
                     d[u] = d[v] + 1
                     p[u] = v
-                    q.append(u)
+                    q.append(u) # dodajemy do kolejki
 
-                    if u == t:
+                    if u == t: # znaleźliśmy najkrótszą ścieżkę
                         return self.get_path(p, s, t)
         return None
 
     def get_path(self, p, s, t):
+        '''Zwraca listę wierzchołków ze ścieżki p z wierzchołka s do wierzchołka t'''
         path = []
         while t != s:
             path.append((p[t], t))
@@ -205,7 +205,7 @@ class FlowNetwork:
         return graph
 
 
-    def BFS(self, G, start, end):
+    def BFS(self, G, start, end): # 2 wersja
         nx.set_node_attributes(G, sys.maxsize, 'cost') 
         nx.set_node_attributes(G, None, 'prev')
         G.nodes[start]['cost'] = 0 
@@ -222,7 +222,7 @@ class FlowNetwork:
                         return True
         return False
 
-    def ford_fulkerson(self, start, end):
+    def ford_fulkerson(self, start, end): # 2 wersja
         max_flow = 0
         while self.BFS(self.graph, start, end):
             path_flow = float('inf')
