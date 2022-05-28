@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from src import utils
+from src.flow_network import FlowNetwork
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import networkx as nx
@@ -48,10 +49,23 @@ class App:
         self.window.mainloop()
 
     def generate_flow_network(self):
-        pass
+        N = int(self.N.get())
+
+        if N >= 2:
+            self.flow_network = FlowNetwork(N)
+            self.graph = self.flow_network.graph
+            self.draw_graph()
+            self.result.show_normal(self.flow_network)
+        else:
+            self.result.show_normal("Błędne parametry")
 
     def ford_fulkerson(self):
-        pass
+        if self.flow_network is not None:
+            self.max_flow = self.flow_network.ford_fulkerson('s', 't')
+            self.draw_graph()
+            result = f"Maksymalny przepływ: {self.max_flow}\n\n"
+            result += str(self.flow_network)
+            self.result.show_normal(result)
 
 
     def draw_graph(self):
@@ -63,11 +77,12 @@ class App:
             'arrowstyle': '-|>',
             'arrowsize': 15,
         }
-        edge_labels=dict([((u,v,),d['weight'])
-                    for u,v,d in self.graph.edges(data=True)])
-        pos = nx.spring_layout(self.graph)
-        nx.draw_networkx(self.graph, pos, arrows=isinstance(self.graph, nx.DiGraph), **options, ax=self.a)
-        nx.draw_networkx_edge_labels(self.graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
+        og_graph = self.flow_network.get_graph_for_drawing()
+        edge_labels=dict([((u,v,),f"{d['flow']}/{d['capacity']}") for u,v,d in og_graph.edges(data=True)])
+        #print(edge_labels)
+        pos = nx.spring_layout(og_graph)
+        nx.draw_networkx(og_graph, pos, arrows=isinstance(og_graph, nx.DiGraph), **options, ax=self.a)
+        nx.draw_networkx_edge_labels(og_graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
         self.canvas.draw()
         
     def add_canvas(self, row, column):
@@ -91,3 +106,4 @@ class App:
 
 if __name__ == '__main__':
     app = App()
+
