@@ -67,87 +67,37 @@ class FlowNetwork:
             self.add_edge(node1, node2, random.randint(1, 10))
 
         self.graph = self.create_test_graph()
-        
+
         for u, v, data in self.graph.edges(data=True):
-            self.graph.add_edge(v, u, capacity=data['capacity'], flow=0)
-
-
-    def create_residual_graph(self):
-        self.residual_graph = nx.DiGraph()
-        for node in self.graph.nodes():
-            self.residual_graph.add_node(node, layer=self.graph.nodes[node]['layer'])
-
-        for node1, node2, data in self.graph.edges(data=True):
-            flow = data['flow']
-            capacity = data['capacity']
-
-            self.residual_graph.add_edge(node2, node1, capacity=capacity-flow, flow=0)
-
-    def create_test_graph(self):
-        graph = nx.DiGraph()
-        graph.add_node('s', layer = 0)
-
-        graph.add_node('a', layer = 1)
-        graph.add_node('b', layer = 1)
-        graph.add_node('c', layer = 1)
-
-        graph.add_node('d', layer = 2)
-        graph.add_node('e', layer = 2)
-        graph.add_node('f', layer = 2)
-
-        graph.add_node('g', layer = 3)
-        graph.add_node('h', layer = 3)
-        graph.add_node('i', layer = 3)
-
-        graph.add_node('t', layer = 4)
-        #S -> 
-        graph.add_edge('s', 'a', capacity = 10, flow = 0)
-        graph.add_edge('s', 'b', capacity = 3, flow = 0)
-        graph.add_edge('s', 'c', capacity = 6, flow = 0)
-        #A -> 
-        graph.add_edge('a', 'b', capacity = 8, flow = 0)
-        graph.add_edge('a', 'd', capacity = 8, flow = 0)
-        graph.add_edge('a', 'e', capacity = 6, flow = 0)
-        #B ->
-        graph.add_edge('b', 'e', capacity = 2, flow = 0)
-        graph.add_edge('b', 'f', capacity = 10, flow = 0)
-        #C -> 
-        graph.add_edge('c', 'd', capacity = 10, flow = 0)
-        graph.add_edge('c', 'f', capacity = 1, flow = 0)
-        #D ->
-        graph.add_edge('d', 'h', capacity = 5, flow = 0)
-        #E ->
-        graph.add_edge('e', 'i', capacity = 7, flow = 0)
-        #F ->
-        graph.add_edge('f', 'g', capacity = 10, flow = 0)
-        #G -> 
-        graph.add_edge('g', 't', capacity = 7, flow = 0)
-        #H -> 
-        graph.add_edge('h', 'g', capacity = 1, flow = 0)
-        graph.add_edge('h', 't', capacity = 5, flow = 0)
-        graph.add_edge('h', 'f', capacity = 8, flow = 0)
-        #I ->
-        graph.add_edge('i', 't', capacity = 7, flow = 0)
-        for u, v, data in graph.edges(data=True):
-            graph.add_edge(v, u, capacity=data['capacity'], flow=0, reverse=True)
-        return graph
+            if not self.graph.edges[u, v]['reverse']:
+                self.graph.add_edge(v, u, capacity=data['capacity'], flow=0, reverse=True)
 
 
     def add_node(self, node, layer):
         self.graph.add_node(node, layer=layer)
 
     def add_edge(self, node1, node2, capacity):
-        self.graph.add_edge(node1, node2, capacity=capacity, flow=0)
+        self.graph.add_edge(node1, node2, capacity=capacity, flow=0, reverse=False)
 
     def get_nodes_from_layer(self, layer):
         return [node for node in self.graph.nodes() if self.graph.nodes[node]['layer'] == layer]
+
+
+    def get_graph_for_drawing(self):
+        result = nx.DiGraph()
+        for u, v, data in self.graph.edges(data=True):
+            if not data['reverse']:
+                result.add_edge(u, v, capacity=data['capacity'], flow=data['flow'])
+
+        return result
 
     def __str__(self):
         result = 'Node(layer) : neighbor(flow/capacity)\n'
         for node in self.graph.nodes():
             result += f'{node}({self.graph.nodes[node]["layer"]}) : '
             for neighbor in self.graph.neighbors(node):
-                result += f'{neighbor}({self.graph.edges[node, neighbor]["flow"]}/{self.graph.edges[node, neighbor]["capacity"]}), '
+                if not self.graph.edges[node, neighbor]['reverse']:
+                    result += f'{neighbor}({self.graph.edges[node, neighbor]["flow"]}/{self.graph.edges[node, neighbor]["capacity"]}), '
 
             result = result[:-2] + '\n'
 
@@ -156,7 +106,7 @@ class FlowNetwork:
     def ford_fulkerson(self):
         flow = 0
         while True:
-            path = self.bts('s', 't')
+            path = self.bfs('s', 't')
             if path is None:
                 break
 
@@ -169,12 +119,11 @@ class FlowNetwork:
                 self.graph.edges[u, v]['flow'] += cf
                 self.graph.edges[v, u]['flow'] -= cf
 
-            input()
             flow += cf
 
         return flow
 
-    def bts(self, s, t):
+    def bfs(self, s, t):
         d, p = {}, {}
         for v in self.graph.nodes():
             d[v] = float('inf')

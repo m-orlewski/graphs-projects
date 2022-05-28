@@ -60,7 +60,12 @@ class App:
             self.result.show_normal("Błędne parametry")
 
     def ford_fulkerson(self):
-        pass
+        if self.flow_network is not None:
+            self.max_flow = self.flow_network.ford_fulkerson('s', 't')
+            self.draw_graph()
+            result = f"Maksymalny przepływ: {self.max_flow}\n\n"
+            result += str(self.flow_network)
+            self.result.show_normal(result)
 
 
     def draw_graph(self):
@@ -72,11 +77,12 @@ class App:
             'arrowstyle': '-|>',
             'arrowsize': 15,
         }
-        edge_labels=dict([((u,v,),f"{d['flow']}/{d['capacity']}") for u,v,d in self.graph.edges(data=True)])
-        print(edge_labels)
-        pos = nx.spring_layout(self.graph)
-        nx.draw_networkx(self.graph, pos, arrows=isinstance(self.graph, nx.DiGraph), **options, ax=self.a)
-        nx.draw_networkx_edge_labels(self.graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
+        og_graph = self.flow_network.get_graph_for_drawing()
+        edge_labels=dict([((u,v,),f"{d['flow']}/{d['capacity']}") for u,v,d in og_graph.edges(data=True)])
+        #print(edge_labels)
+        pos = nx.spring_layout(og_graph)
+        nx.draw_networkx(og_graph, pos, arrows=isinstance(og_graph, nx.DiGraph), **options, ax=self.a)
+        nx.draw_networkx_edge_labels(og_graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
         self.canvas.draw()
         
     def add_canvas(self, row, column):
@@ -99,7 +105,5 @@ class App:
         self.result.grid(row=1, column=0)
 
 if __name__ == '__main__':
-    #app = App()
-    FN = FlowNetwork(2)
-    print(FN)
+    app = App()
 
