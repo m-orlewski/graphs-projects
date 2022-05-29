@@ -12,11 +12,12 @@
 #include <cmath>
 #include "randutils.hpp"
 
-randutils::mt19937_rng rng;
+randutils::mt19937_rng rng; //generator liczb losowych
 
 using pointType = std::tuple<int, int>;
 using pathType = std::vector<pointType>;
 
+//Odczyt z pliku
 pathType readFromFile(std::string filename){
     pathType path;
     int currentX;
@@ -33,54 +34,67 @@ pathType readFromFile(std::string filename){
     return path;
 }
 
+//Wypisanie ścieżki na konsolę, wersja z prefixami
 void printPath(const pathType& path){
     for(pointType point : path){
         std::cout << "X: " << std::get<0>(point) << " Y: " << std::get<1>(point) << std::endl;
     }
 }
 
+//Wypisanie ściezki na konsolę, wersja uproszczona
 void printPathSimple(const pathType& path){
     for(pointType point : path){
         std::cout << std::get<0>(point) << " " << std::get<1>(point) << std::endl;
     }
 }
 
+//Zapis ścieżki do pliku
+void printPathToFile(const pathType& path){
+    std::ofstream file("out.dat");
+    for(pointType point : path){
+        file << std::get<0>(point) << " " << std::get<1>(point) << std::endl;
+    }
+    file.close();
+}
+
+//Funkcja losująca dwie krawędzie które zostaną zamienione
 std::array<int, 2> pickRandomEdges(int pointCount){
     std::array<int, 2> ans;
 
-    ans[0] = rng.uniform(0,pointCount-1);
+    ans[0] = rng.uniform(0,pointCount-1); //pierwsza krawędź do zamiany
 
-    std::array<int, 3> forbidden = {ans[0]-1, ans[0], ans[0]+1};
+    std::array<int, 3> forbidden = {ans[0]-1, ans[0], ans[0]+1}; //tablica krawędzi których już nie możemy wybrać
 
-    if(forbidden[0] == -1)
+    if(forbidden[0] == -1) //poprawa zabronionych gdy wylosowaliśmy zerowy punkt
         forbidden[0] = pointCount-1;
-    if(forbidden[2] == pointCount)
+    if(forbidden[2] == pointCount) //poprawa zabronionych gdy wylosowaliśmy ostatni punkt
         forbidden[2] = 0;
 
     do{
-        ans[1] = rng.uniform(0, pointCount-1);
-    } while ((ans[1] == forbidden[0]) || (ans[1] == forbidden[1]) || (ans[1] == forbidden[2]));
+        ans[1] = rng.uniform(0, pointCount-1); //druga krawędź
+    } while ((ans[1] == forbidden[0]) || (ans[1] == forbidden[1]) || (ans[1] == forbidden[2])); //musi spełnić warunki
 
     return ans;
 }
 
+//Zamiana krawędzi
 void swapEdges(std::array<int, 2> edges, pathType& path){
     
-    if(edges[0]==path.size()-1){
+    if(edges[0]==path.size()-1){ //zamiana krawędzi w przypadku gdy wylosowaliśmy ostatni punkt
         std::swap(path[0], path[edges[1]]);
         return;
     }
 
-    std::swap(path[edges[0]+1], path[edges[1]]);
+    std::swap(path[edges[0]+1], path[edges[1]]); //zamiana krawędzi
 }
 
+//Obliczanie długości ścieżki
 double pathLength(pathType& path){
     double totalLength = 0;
     int x = std::get<0>(path[0]);
     int y = std::get<1>(path[0]);
     for(int i=1; i<path.size(); i++){
         totalLength += sqrt(pow(std::get<0>(path[i]) - x,2) + pow(std::get<1>(path[i]) - y, 2));
-        // std::cout<<"x= "<<x<<" y= "<<y<<std::endl;
         x = std::get<0>(path[i]);
         y = std::get<1>(path[i]);
     }
@@ -89,18 +103,16 @@ double pathLength(pathType& path){
     return totalLength;
 }
 
+// Algorytm symulowanego wyżarzania 
 void simulatedAnnealing(pathType& path){
     double T;
     double d = pathLength(path);
     
     for(int i = 100; i>=1; i--){
         T = 0.001*i*i;
-        // T = pow(0.001*i,2);
         std::cout<<"I="<<i<<std::endl;
         for(int it = 0; it<MAX_IT; it++){
-            // std::cout<<path.size();
             auto picked = pickRandomEdges(path.size());
-            // std::cout<<"Will swap "<<picked[0]<<" and "<<picked[1]<<std::endl;
             pathType newPath = pathType(path);
             swapEdges(picked, newPath);
             double dNew = pathLength(newPath);
@@ -110,41 +122,39 @@ void simulatedAnnealing(pathType& path){
             }
             else{
                 double r = rng.uniform(0., 1.);
-                // std::cout<<"old="<<d<<" new="<<dNew<<std::endl;
                 double f = -1.0*(dNew-d)/T;
                 double exponent = exp(f);
-                // std::cout<<"R="<<r<<" f="<<f<<" exp="<<exponent<<std::endl;
                 if(r<exponent){
                     path = newPath;
                     d = dNew;
                 }
             }
         }
-        std::cout<<"d="<<d<<std::endl;
+        //std::cout<<"d="<<d<<std::endl;
     }
 }
 
-int main(){
-    auto path = readFromFile("input_150.dat");
-    // double len1 = pathLength(path);
-    // printPathSimple(path);
-
-    // std::array<int, 2> testEdges = {1, 3};
-    // swapEdges(testEdges, path);
-    // std::cout<<"\n\n\n";
-    // double len2 = pathLength(path);
-    // printPathSimple(path);
+int main(int argc, char* argv[]){
     
-    // std::cout<<len1<<" "<<len2<<std::endl;
+    if(argc != 2){
+        std::cout<<"Podaj nazwe pliku wejsciowego jako argument"<<std::endl;
+        return 0;
+    }
+
+    std::string filename = argv[1];
+
+    auto path = readFromFile(filename);
+    double len1 = pathLength(path);
+
+    std::cout << "Length before: " << len1 << std::endl;
 
     simulatedAnnealing(path);
 
+    double len2 = pathLength(path);
+    
+    std::cout << "Length after: " << len2 << std::endl;
 
-    printPathSimple(path);
+    printPathToFile(path);
 
-    // for(int i=0; i<30; i++){
-    //     auto edges = pickRandomEdges(10);
-    //     std::cout<<edges[0]<<" "<<edges[1]<<std::endl;
-    // }
     return 0;
 }
