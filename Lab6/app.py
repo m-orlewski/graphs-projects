@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import networkx as nx
 from tools.tkinter import InfoLabel
+from src.digraph import Digraph
 
 class App:
     def __init__(self, g=None):
@@ -54,25 +55,37 @@ class App:
 
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=1, pady=5, sticky='NS')
         ttk.Separator(self.window, orient='vertical').grid(row=0, column=3, pady=5, sticky='NS')
-        
+        self.draw_graph()
+        self.result.show_normal(str(Digraph(from_graph=self.graph).to_adj_list()))
+        self.d=0.15
         self.window.mainloop()
 
     def generate_digraph(self):
         n = int(self.n.get())
         p = float(self.p.get())
         if n > 0 and p >= 0.0 and p <= 1.0:
+
             self.graph = utils.generate_digraph(n, p).graph
             adj_list = Digraph(from_graph=self.graph).to_adj_list()
+            while min(adj_list.representation.values(), key=len)==[]:
+                self.graph = utils.generate_digraph(n, p).graph
+                adj_list = Digraph(from_graph=self.graph).to_adj_list()
             self.result.show_normal(str(adj_list))
             self.draw_graph()
         else:
             self.result.show_normal("Bledne parametry")
 
     def page_rank_a(self):
-        pass
+        s=''
+        for el in utils.page_rank_a(self.graph,self.d):
+            s+=str(el[0])+" ==> "+str(el[1])+"\n"
+        self.result.show_normal(s)
 
     def page_rank_b(self):
-        pass
+        s=""
+        for el in utils.page_rank_b(self.graph,self.d):
+            s+=str(el[0])+" ==> "+str(el[1])+"\n"
+        self.result.show_normal(s)
 
     def burn_in_method(self):
         pass
@@ -86,11 +99,8 @@ class App:
             'arrowstyle': '-|>',
             'arrowsize': 15,
         }
-        edge_labels=dict([((u,v,),d['weight'])
-                    for u,v,d in self.graph.edges(data=True)])
         pos = nx.spring_layout(self.graph)
         nx.draw_networkx(self.graph, pos, arrows=isinstance(self.graph, nx.DiGraph), **options, ax=self.a)
-        nx.draw_networkx_edge_labels(self.graph,pos,edge_labels=edge_labels, ax=self.a, label_pos=0.4)
         self.canvas.draw()
         
     def add_canvas(self, row, column):
@@ -113,4 +123,9 @@ class App:
         self.result.grid(row=1, column=0)
 
 if __name__ == '__main__':
-    app = App()
+    g = Digraph()
+    g.add_vertices(range(1,13))
+    for i in [(1,5),(1,6),(1,9),(2,1),(2,3),(2,6),(3,2),(3,4),(3,5),(3,12),(4,3),(4,5),(4,8),(4,9),(4,11),(5,3),(5,7),(5,8),(5,9),(6,2),(6,7),(7,5),(7,6),(7,8),(8,4),(8,7),(8,9),(8,12),(9,4),(9,5),(9,8),(9,10),(10,9),(11,4),(11,9),(12,1),(12,8)]:
+        g.add_edge(i[0],i[1])
+
+    app = App(g.graph)
